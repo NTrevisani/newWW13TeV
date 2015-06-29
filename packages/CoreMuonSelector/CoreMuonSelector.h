@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////                                                                                             /////////////
-/////////////                                     CORE MUON SELECTOR                                      /////////////
+/////////////                                     WW ANALYSIS SELECTOR                                    /////////////
 /////////////                                                                                             /////////////
-/////////////                                  Juan R. Castiñeiras (IFCA)                                 /////////////
+/////////////                                    Nicolò Trevisani (IFCA)                                  /////////////
 /////////////                                          Jun 2016                                           /////////////
 /////////////                                                                                             /////////////
 /////////////                              -> Adjust to a 120 width window <-                             /////////////
@@ -19,8 +19,10 @@
 #include <TMatrix.h>
 #include <TH2F.h>
 #include <TLorentzVector.h>
+#include <vector>
 #include "Riostream.h"  
 
+const Double_t ZMASS = 91.1876;
 
 class CoreMuonSelector: public PAFChainItemSelector{
   
@@ -33,211 +35,287 @@ class CoreMuonSelector: public PAFChainItemSelector{
   
  protected:
   // See description in implementation
-  void                        CheckMuons();
-  void                        SetGenInfo();
-  void                        GetMatching();
-  bool                        passMediumID(int);
-  bool                        passISO(int, string, float);
-  float                       getISO(int, string);
-  void                        SetEventFlags();
-  void                        Counting();
 
+  //PUWeight* fPUWeight;
+
+  float Testing(int k);
+  bool  IsTightLepton(int k);
+  float MuonIsolation(int k);
+  float ElectronIsolation(int k);
+  bool  IsIsolatedLepton(int k);
+
+  bool G_Debug_DefineAnalysisVariables;
 
   // My Declarations:
   // Define data members
 
   // VARIABLES FOR EACH EVENT (to be initialized after every event)
  
-  // GEN Info
-  std::vector<TLorentzVector> G_GEN_PromptMuon_4vec;  //Lorentz vector for all GEN prompt muons, or coming from 
-                                                      //a prompt tau decay, ordered by Pt
-  std::vector<TLorentzVector> G_GEN_Muon_4vec;        //Lorentz vector for muons that are not included above
-  bool                        G_GEN_isMuMu;      //There are 2 GEN prompt muons that come directly from a boson  
-  bool                        G_GEN_isMuTau;     // "                        "  but the 2nd (in Pt) comes from a tau
-  bool                        G_GEN_isTauMu;     // "                        "  but the 1st comes from a tau
-  bool                        G_GEN_isTauTau;    // "                        "  and both come from a tau
-  bool                        G_GEN_Pass;        // 1 of the 4 above is true
-  bool                        G_GEN_isNonPrompt; //There is at least a GEN non prompt muon
-  
-  // RECO muons
-  std::vector<TLorentzVector> G_Muon_4vec;            //Lorentz vector for all RECO muons ordered by Pt
+  std::vector<float> *std_vector_lepton_pt;      
+  std::vector<float> *std_vector_jet_pt;         
+  std::vector<float> *std_vector_lepton_muSIP3D; 
+  std::vector<float> *std_vector_lepton_elSIP3D; 
+  std::vector<float> *std_vector_lepton_id;
+  std::vector<float> *std_vector_lepton_isTightMuon;
+  std::vector<float> *std_vector_electron_scEta;
+  std::vector<float> *std_vector_electron_deltaEtaIn;
+  std::vector<float> *std_vector_electron_deltaPhiIn;
+  std::vector<float> *std_vector_electron_sigmaIetaIeta;
+  std::vector<float> *std_vector_electron_HoE;
+  std::vector<float> *std_vector_electron_d0;
+  std::vector<float> *std_vector_electron_dz;
+  std::vector<float> *std_vector_electron_ooEooP;
+  std::vector<float> *std_vector_electron_passConversion;
+  std::vector<float> *std_vector_lepton_chargedHadronIso;
+  std::vector<float> *std_vector_lepton_photonIso;
+  std::vector<float> *std_vector_lepton_neutralHadronIso;
+  std::vector<float> *std_vector_lepton_sumPUPt;
+  std::vector<float> *std_vector_electron_effectiveArea;
 
-  std::vector<bool>           G_MuonID_Tight;         //Which RECO muons pass Tight ID 
-  std::vector<bool>           G_MuonID_Medium;        // ""          ""  pass Medium ID
-  std::vector<bool>           G_MuonID_HWW;           // ""          ""  pass HWW ID 
-  std::vector<bool>           G_MuonID_IPs_HWW;       // ""          ""  pass IP cuts (dxy and dz) from HWW ID
-  std::vector<bool>           G_MuonID_GLBorTRKArb;   // ""          ""  are GLB or TRK Arbitrated
-  std::vector<bool>           G_MuonID_Fiducial;      // ""          ""  have:
-                                                      //   * For the first muon,  Pt > 20 & |Eta| < 2.4 
-                                                      //   * For the other muons, Pt > 10 & |Eta| < 2.4, 
-                                                      //     and opposite charge than the first muon   
+  float jetRho;
+  float puW;
+  float effW;
+  float triggW;
+  float dataset;
+  float baseW;
+  float dphilljetjet;
+  float dphilmet1;
+  float dphilmet2;
+  float pfType1Met;
+  float pt1;
+  float pt2;
+  float ptll;
+  float mll;
+  float mth;
+  float drll;
+  float dphill;
+  float dphilljet;
+  float trkMet;
+  float ch1;
+  float ch2;
 
-  std::vector<bool>           G_MuonISO03;            //Which RECO muons pass PF Rel. ISO, dR=0.3 (w.p. = 0.12)
-  std::vector<bool>           G_MuonISO03_dBeta;      // ""                            "", dR=0.3 and dBeta corr.
-  std::vector<bool>           G_MuonISO03_PFWeighted; // ""                            "", dR=0.3 and PFweighted corr.
-  std::vector<bool>           G_MuonISO03_PUPPI;      // ""                            "", dR=0.3 and PUPPI corr.
-  std::vector<bool>           G_MuonISO04;            // ""                            "", dR=0.4
-  std::vector<bool>           G_MuonISO04_dBeta;      // ""                            "", dR=0.4 and dBeta corr.
-  std::vector<bool>           G_MuonISO04_PFWeighted; // ""                            "", dR=0.4 and PFweighted corr.
-  std::vector<bool>           G_MuonISO04_PUPPI;      // ""                            "", dR=0.4 and PUPPI corr.
-
-  std::vector<int>            G_Muon_Matching;        //To which GEN prompt muon the RECO muons are matched
-                                                      //  * 1: matched to the 1st GEN prompt muon
-                                                      //  * 2: matched to the 2nd GEN prompt muon 
-                                                      //  * 0: not matched to any GEN prompt muon
-  bool                        G_PassMatching;         //The 1st and the 2nd RECO muons are matched to GEN muons
-                                                      //This provides the maximum ID and ISO efficiency
-
-  // Sizes
-  UInt_t                      G_RecoMuSize;      //How many RECO muons there are
-  UInt_t                      G_NPV;             //How many Primary Vtx. there are
-
-  // Event Flags
-  bool                        EvtFlag_Fiducial; // 1st and 2nd muon pass Fiducial Selection
-  bool                        EvtFlag_Gen;      // Same as G_GEN_Pass
-  bool                        EvtFlag_Matching; // Same as G_PassMatching
-
+  int   nextra;
+  int   njet;
+  int   nbjet;
+  int   bveto_ip;
+  int   bveto_mu;
+  int   nbjettche;
+  int   channel;
 
   // VARIABLES FOR ALL EVENTS (to be initialized only once)
-
-  // Counting events
-
-  UInt_t                      GCount_AllEvents;
-  UInt_t                      GCount_GenEvents;
-  UInt_t                      GCount_Fiducial_AtLeast2;
-  UInt_t                      GCount_Fiducial_2;
-  UInt_t                      GCount_Fiducial_1st2nd;
-  UInt_t                      GCount_Match_1st2nd;
-  UInt_t                      GCount_NoMatch_1st2nd;
-  UInt_t                      GCount_MatchTight_1st2nd;
-  UInt_t                      GCount_MatchTightIso_1st2nd;
-  UInt_t                      GCount_MatchTightIso_Only1st;
-  UInt_t                      GCount_MatchTightIso_Only2nd;
-  UInt_t                      GCount_MatchTightIso_None;
-  UInt_t                      GCount_MatchTight_Only1st;
-  UInt_t                      GCount_MatchTight_Only2nd;
-  UInt_t                      GCount_MatchTight_None;
-  UInt_t                      GCount_Tight_1st2nd;
-  UInt_t                      GCount_TightIso_1st2nd;
-  UInt_t                      GCount_TightIso_Only1st;
-  UInt_t                      GCount_TightIso_Only2nd;
-  UInt_t                      GCount_TightIso_None;
-  UInt_t                      GCount_Tight_Only1st;
-  UInt_t                      GCount_Tight_Only2nd;
-  UInt_t                      GCount_Tight_None;
-  UInt_t                      GCount_Fiducial_1st3rd;
-  UInt_t                      GCount_Match_1st3rd;
-  UInt_t                      GCount_NoMatch_1st3rd;
-  UInt_t                      GCount_MatchTight_1st3rd;
-  UInt_t                      GCount_MatchTightIso_1st3rd;
-  UInt_t                      GCount_MatchTightIso_Only3rd;
-  UInt_t                      GCount_MatchTight_Only3rd;
-  UInt_t                      GCount_Tight_1st3rd;
-  UInt_t                      GCount_TightIso_1st3rd;
-  UInt_t                      GCount_TightIso_Only3rd;
-  UInt_t                      GCount_Tight_Only3rd;
-  UInt_t                      GCount_Fiducial_1stOther;
-  UInt_t                      GCount_Fiducial_MoreThan2;
-  UInt_t                      GCount_Match_MoreThan2_OK;
-  UInt_t                      GCount_Match_MoreThan2;
-  UInt_t                      GCount_NoMatch_MoreThan2;
-  UInt_t                      GCount_Fiducial_3;
-  UInt_t                      GCount_Fiducial_MoreThan3;
-  UInt_t                      GCount_Fiducial_Only1st;
-  UInt_t                      GCount_Fiducial_None;
 
  
    // Histograms 
   TH1F                        *h_N_PV;
   
+  // Counting histograms                                                                  
+  //-------------------------------------------------------------------------
+
+  TH1F* hWTrigger;
+  TH1F* hWMetCut;
+  TH1F* hWLowMinv;
+  TH1F* hWZVeto;
+  TH1F* hWpMetCut;
+  TH1F* hWJetVeto;
+  TH1F* hWnJetsBeforeBtag;
+  TH1F* hWeffnJetsBeforeBtag;
+  TH1F* hWnJets;
+  TH1F* hWeffnJets;
+  TH1F* hWnBtaggedJets;
+  TH1F* hWeffnBtaggedJets;
+  TH1F* hWnJetsBveto;
+  TH1F* hWeffnJetsBveto;
+  TH1F* hNjetsTwoLeptonsLevel;
+  TH1F* hWeffnJetsBvetoAfterHt;
+  TH1F* hWnJetsBvetoAfterHt;
+
+  TH1F* hWeffTrigger;
+  TH1F* hWeffMetCut;
+  TH1F* hWeffLowMinv;
+  TH1F* hWeffZVeto;
+  TH1F* hWeffpMetCut;
+  TH1F* hWeffJetVeto;
+  TH1F* hWeffDeltaPhiJet;
+  TH1F* hWeffSoftMuVeto;
+  TH1F* hWeffExtraLepton;
+  TH1F* hWeffPtll;
+  TH1F* hWeffTopTagging;
+ 
+  TH1F* hWDeltaPhiJet;
+  TH1F* hWSoftMuVeto;
+  TH1F* hWExtraLepton;
+  TH1F* hWPtll;
+  TH1F* hWTopTagging;
   
+  TH1F* hPtLepton1WWLevel[4];
+  TH1F* hPtLepton2WWLevel[4];
+  TH1F* hPtDiLeptonWWLevel[4];
+  TH1F* hMinvWWLevel[4];
+  TH1F* hMtWWLevel[4];
+  TH1F* hpfMetWWLevel[4];
+  TH1F* hpminMetWWLevel[4];
+  TH1F* hDeltaRLeptonsWWLevel[4];
+  TH1F* hDeltaPhiLeptonsWWLevel[4];
+  TH1F* hDPhiPtllJetWWLevel[4];
+  TH1F* hSigMu[4];
+  TH1F* hSigEl[4];
+
+  TH1F* hPtLepton1WWLevelNoHt[4];
+  TH1F* hPtLepton2WWLevelNoHt[4];
+  TH1F* hPtDiLeptonWWLevelNoHt[4];
+  TH1F* hMinvWWLevelNoHt[4];
+  TH1F* hMtWWLevelNoHt[4];
+  TH1F* hpfMetWWLevelNoHt[4];
+  TH1F* hpminMetWWLevelNoHt[4];
+  TH1F* hDeltaRLeptonsWWLevelNoHt[4];
+  TH1F* hDeltaPhiLeptonsWWLevelNoHt[4];
+  TH1F* hDPhiPtllJetWWLevelNoHt[4];
+  TH1F* hSigMuNoHt[4];
+  TH1F* hSigElNoHt[4];
+
+  TH1F* hPtLepton1WWLevelHtPlus[4];
+  TH1F* hPtLepton2WWLevelHtPlus[4];
+  TH1F* hPtDiLeptonWWLevelHtPlus[4];
+  TH1F* hMinvWWLevelHtPlus[4];
+  TH1F* hMtWWLevelHtPlus[4];
+  TH1F* hpfMetWWLevelHtPlus[4];
+  TH1F* hpminMetWWLevelHtPlus[4];
+  TH1F* hDeltaRLeptonsWWLevelHtPlus[4];
+  TH1F* hDeltaPhiLeptonsWWLevelHtPlus[4];
+  TH1F* hDPhiPtllJetWWLevelHtPlus[4];
+  TH1F* hSigMuHtPlus[4];
+  TH1F* hSigElHtPlus[4];
+
+  TH1F* hHt[4];
+  TH1F* hHtAfter[4];
+
+  // TwoLeptons level histograms                                                                                                               
+  //----------------------------------------------------------------------------                                                               
+
+  TH1F* hPtLepton1TwoLeptonsLevel;
+  TH1F* hPtLepton2TwoLeptonsLevel ;
+  TH1F* hPtDiLeptonTwoLeptonsLevel;
+  TH1F* hMinvTwoLeptonsLevel;
+  TH1F* hMtTwoLeptonsLevel;
+  TH1F* hpfMetTwoLeptonsLevel;
+  TH1F* hpminMetTwoLeptonsLevel;
+  TH1F* hDeltaRLeptonsTwoLeptonsLevel;
+  TH1F* hDeltaPhiLeptonsTwoLeptonsLevel;
+  TH1F* hDPhiPtllJetTwoLeptonsLevel;
+
+  TH1F *hLooseIso;
+
   // Input parameters
-  TString                     _Signal;       // Type of Signal
-  int                         _NEvents;      // Total number of events in the sample before skim
-  float                       _Luminosity;   // Total luminosity
-  float                       _XSection;     // Process cross section
-  bool                        _IsDATA;       // True if is Data, False in case MC
-  int                         _WhichRun;     // 1 in case of RunI samples. 2 In case of RunII samples.
-  bool                        _Debug;        // True for verbose while debugging
-  bool                        _Report;       // Count events and print final report
+  TString                     _Signal;               // Type of Signal
+  int                         _NEvents;              // Total number of events in the sample before skim
+  float                       _Luminosity;           // Total luminosity
+  float                       _XSection;             // Process cross section
+  bool                        _IsDATA;               // True if is Data, False in case MC
+  int                         _WhichRun;             // 1 in case of RunI samples. 2 In case of RunII samples.
+  bool                        _Debug;                // True for verbose while debugging
+  bool                        _Report;               // Count events and print final report
+  TString                     _SameSign;             // Choose the type of events looking at the lepton's charge
+  TString                     _SelectedChannel;      // Choose the type of events looking at the lepton's charge
+  TString                     _outPath;              // Output folder
 
   // Weights
-  float                       _factN;        // Normalization factor
+  float                       _factN;                // Normalization factor
 
 
 
  public:  
  CoreMuonSelector() : 
-     PAFChainItemSelector(),
-     G_GEN_isMuMu(),
-     G_GEN_isMuTau(),
-     G_GEN_isTauMu(),
-     G_GEN_isTauTau(),
-     G_GEN_Pass(),
-     G_GEN_isNonPrompt(),
-     G_PassMatching(),
-     G_RecoMuSize(),
-     G_NPV(),
-     EvtFlag_Fiducial(),
-     EvtFlag_Gen(),
-     EvtFlag_Matching(),
-       
-     GCount_AllEvents(),
-     GCount_GenEvents(),
-     GCount_Fiducial_AtLeast2(),
-     GCount_Fiducial_2(),
-     GCount_Fiducial_1st2nd(),
-     GCount_Match_1st2nd(),
-     GCount_NoMatch_1st2nd(),
-     GCount_MatchTight_1st2nd(),
-     GCount_MatchTightIso_1st2nd(),
-     GCount_MatchTightIso_Only1st(),
-     GCount_MatchTightIso_Only2nd(),
-     GCount_MatchTightIso_None(),
-     GCount_MatchTight_Only1st(),
-     GCount_MatchTight_Only2nd(),
-     GCount_MatchTight_None(),
-     GCount_Tight_1st2nd(),
-     GCount_TightIso_1st2nd(),
-     GCount_TightIso_Only1st(),
-     GCount_TightIso_Only2nd(),
-     GCount_TightIso_None(),
-     GCount_Tight_Only1st(),
-     GCount_Tight_Only2nd(),
-     GCount_Tight_None(),
-     GCount_Fiducial_1st3rd(),
-     GCount_Match_1st3rd(),
-     GCount_NoMatch_1st3rd(),
-     GCount_MatchTight_1st3rd(),
-     GCount_MatchTightIso_1st3rd(),
-     GCount_MatchTightIso_Only3rd(),
-     GCount_MatchTight_Only3rd(),
-     GCount_Tight_1st3rd(),
-     GCount_TightIso_1st3rd(),
-     GCount_TightIso_Only3rd(),
-     GCount_Tight_Only3rd(),
-     GCount_Fiducial_1stOther(),
-     GCount_Fiducial_MoreThan2(),
-     GCount_Match_MoreThan2_OK(),
-     GCount_Match_MoreThan2(),
-     GCount_NoMatch_MoreThan2(),
-     GCount_Fiducial_3(),
-     GCount_Fiducial_MoreThan3(),
-     GCount_Fiducial_Only1st(),
-     GCount_Fiducial_None(),
-     
-     h_N_PV(),
-     
-     _Signal(),
-     _NEvents(),
-     _Luminosity(),
-     _XSection(),
-     _IsDATA(),
-     _WhichRun(),
-     _Debug(),
-     _Report(),
-     _factN()
-       { }
-
-   ClassDef(CoreMuonSelector,0);
+  
+  h_N_PV(),
+    
+    hWTrigger(),
+    hWMetCut(),
+    hWLowMinv(),
+    hWZVeto(),
+    hWpMetCut(),
+    hWJetVeto(),
+    hWnJetsBeforeBtag(),
+    hWeffnJetsBeforeBtag(),
+    hWnJets(),
+    hWeffnJets(),
+    hWnBtaggedJets(),
+    hWeffnBtaggedJets(),
+    hWnJetsBveto(),
+    hWeffnJetsBveto(),
+    hNjetsTwoLeptonsLevel(),
+    hWeffnJetsBvetoAfterHt(),
+    
+    hWDeltaPhiJet(),
+    hWSoftMuVeto(),
+    hWExtraLepton(),
+    hWPtll(),
+    hWTopTagging(),
+    
+    hPtLepton1WWLevel(),
+    hPtLepton2WWLevel(),
+    hPtDiLeptonWWLevel(),
+    hMinvWWLevel(),
+    hMtWWLevel(),
+    hpfMetWWLevel(),
+    hpminMetWWLevel(),
+    hDeltaRLeptonsWWLevel(),
+    hDeltaPhiLeptonsWWLevel(),
+    hDPhiPtllJetWWLevel(),
+    hSigMu(),
+    hSigEl(),
+    
+    hPtLepton1WWLevelNoHt(),
+    hPtLepton2WWLevelNoHt(),
+    hPtDiLeptonWWLevelNoHt(),
+    hMinvWWLevelNoHt(),
+    hMtWWLevelNoHt(),
+    hpfMetWWLevelNoHt(),
+    hpminMetWWLevelNoHt(),
+    hDeltaRLeptonsWWLevelNoHt(),
+    hDeltaPhiLeptonsWWLevelNoHt(),
+    hDPhiPtllJetWWLevelNoHt(),
+    hSigMuNoHt(),
+    hSigElNoHt(),
+    
+    hPtLepton1WWLevelHtPlus(),
+    hPtLepton2WWLevelHtPlus(),
+    hPtDiLeptonWWLevelHtPlus(),
+    hMinvWWLevelHtPlus(),
+    hMtWWLevelHtPlus(),
+    hpfMetWWLevelHtPlus(),
+    hpminMetWWLevelHtPlus(),
+    hDeltaRLeptonsWWLevelHtPlus(),
+    hDeltaPhiLeptonsWWLevelHtPlus(),
+    hDPhiPtllJetWWLevelHtPlus(),
+    hSigMuHtPlus(),
+    hSigElHtPlus(),
+    
+    hHt(),
+    hHtAfter(),
+    
+    hPtLepton1TwoLeptonsLevel(),
+    hPtLepton2TwoLeptonsLevel (),
+    hPtDiLeptonTwoLeptonsLevel(),
+    hMinvTwoLeptonsLevel(),
+    hMtTwoLeptonsLevel(),
+    hpfMetTwoLeptonsLevel(),
+    hpminMetTwoLeptonsLevel(),
+    hDeltaRLeptonsTwoLeptonsLevel(),
+    hDeltaPhiLeptonsTwoLeptonsLevel(),
+    hDPhiPtllJetTwoLeptonsLevel(),
+    
+    hLooseIso(),
+    
+    _Signal(),
+    _NEvents(),
+    _Luminosity(),
+    _XSection(),
+    _IsDATA(),
+    _WhichRun(),
+    _Debug(),
+    _Report(),
+    _factN()
+      { }
+  
+  ClassDef(CoreMuonSelector,0);
 };
