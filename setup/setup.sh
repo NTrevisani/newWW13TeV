@@ -1,0 +1,1 @@
+source /gpfs/csic_projects/cms/sw/PAF/PAF_setup.sh
