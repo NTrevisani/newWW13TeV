@@ -42,7 +42,7 @@ void CoreMuonSelector::Initialise() {
   _Debug           = GetParam<bool>("Debug");
   _Report          = GetParam<bool>("Report");
   _SameSign        = GetParam<TString>("SameSign"); 
-  _SelectedChannel = GetParam<TString>("FlavorChannel");
+  _FlavorChannel   = GetParam<TString>("FlavorChannel");
   _outPath         = GetParam<TString>("OutPath");
 
   gSystem -> Exec("mkdir " + _outPath);
@@ -56,6 +56,16 @@ void CoreMuonSelector::Initialise() {
 
   }
 
+  SelectedChannel = -999;
+  
+  if      (_FlavorChannel == "MuMu") SelectedChannel =  0;
+  else if (_FlavorChannel == "EE"  ) SelectedChannel =  1;
+  else if (_FlavorChannel == "EMu" ) SelectedChannel =  2;
+  else if (_FlavorChannel == "MuE" ) SelectedChannel =  3;
+  else if (_FlavorChannel == "OF"  ) SelectedChannel =  4;
+  else if (_FlavorChannel == "SF"  ) SelectedChannel =  5;
+  
+  else if (_FlavorChannel == "All" ) SelectedChannel = -1;
  
 //------------------------------------------------------------------------------
 // Create histos
@@ -166,6 +176,8 @@ void CoreMuonSelector::Initialise() {
   hDeltaRLeptonsTwoLeptonsLevel   = CreateH1F("hDeltaRLeptonsTwoLeptonsLevel",   "",  50, 0,   5);
   hDeltaPhiLeptonsTwoLeptonsLevel = CreateH1F("hDeltaPhiLeptonsTwoLeptonsLevel", "",  32, 0, 3.2);
   hDPhiPtllJetTwoLeptonsLevel     = CreateH1F("hDPhiPtllJetTwoLeptonsLevel",     "",  32, 0, 3.2);
+  hSigMuNoHtTwoLeptonsLevel       = CreateH1F("hSigMuNoHtTwoLeptonsLevel",       "", 100, 0,  50);
+  hSigElNoHtTwoLeptonsLevel       = CreateH1F("hSigElNoHtTwoLeptonsLevel",       "", 100, 0,  50);
 
   //Vectors
   //----------------------------------------------------------------------------
@@ -327,6 +339,7 @@ void CoreMuonSelector::InsideLoop() {
   Assign("ch1",ch1);
   Assign("ch2",ch2);
   Assign("jetRho",jetRho);
+  Assign("channel",channel);
   
   //Assigning values to integer variables
   //----------------------------------------------------------------------------
@@ -337,7 +350,6 @@ void CoreMuonSelector::InsideLoop() {
   Assign("bveto_ip",bveto_ip);
   Assign("bveto_mu",bveto_mu);
   Assign("nbjettche",nbjettche);
-  Assign("channel",channel);
 
   //Creating the variables we need
   //----------------------------------------------------------------------------
@@ -352,7 +364,7 @@ void CoreMuonSelector::InsideLoop() {
   
   Int_t dphiv = (njet <= 1 || (njet > 1 && dphilljetjet < 165.*TMath::DegToRad()));
   
-  Float_t jetbin = njet;
+  int jetbin = njet;
   
   Float_t dphimin = (min(dphilmet1,dphilmet2));
   Float_t fullpmet = 0;
@@ -378,18 +390,18 @@ void CoreMuonSelector::InsideLoop() {
    for (int i = 0; i < njet; ++i)
      if(std_vector_jet_pt->at(i) > 0)
        Ht += std_vector_jet_pt->at(i);
-
+   
    // The selection begins here
    //--------------------------------------------------------------------------
    if (std_vector_lepton_pt->at(0) > 20)
      if (std_vector_lepton_pt->at(1) > 20) 
        if ((_SameSign == "SS" && ch1*ch2 > 0) || (_SameSign == "OS" && ch1*ch2 < 0))
-	 if ( (_SelectedChannel == -1)                                     || 
-	      (channel == _SelectedChannel)                                || 
-	      (_SelectedChannel == 4 && (channel == 2 || channel == 3) )   || 
-	      (_SelectedChannel == 5 && (channel == 0 || channel == 1) ) 
+	 if ( (SelectedChannel == -1)                                     || 
+	      (channel == SelectedChannel)                                || 
+	      (SelectedChannel == 4 && (channel == 2 || channel == 3) )   || 
+	      (SelectedChannel == 5 && (channel == 0 || channel == 1) ) 
 	      ){
-	   
+  
 	   if (IsTightLepton(0) && !IsTightLepton(1))
 	     hLooseIso -> Fill(ElectronIsolation(1), totalW);
 	   if (IsTightLepton(1) && !IsTightLepton(0))
@@ -418,6 +430,9 @@ void CoreMuonSelector::InsideLoop() {
 	       hDeltaPhiLeptonsTwoLeptonsLevel->Fill(dphill,     totalW);
 	       hDPhiPtllJetTwoLeptonsLevel    ->Fill(dphilljet,  totalW);
 	       hNjetsTwoLeptonsLevel          ->Fill(njet,       totalW);
+	       hSigMuNoHtTwoLeptonsLevel      ->Fill(std_vector_lepton_muSIP3D->at(0),totalW);
+	       hSigElNoHtTwoLeptonsLevel      ->Fill(std_vector_lepton_elSIP3D->at(0),totalW);
+
 
 	       if (nextra == 0) {
 		 
@@ -478,8 +493,8 @@ void CoreMuonSelector::InsideLoop() {
 			       hWTopTagging->Fill(1, totalW);
 			       hWeffTopTagging->Fill(1, efficiencyW);
 			       
-			       //b-veto
-			       if (bveto_mu == 1) {
+			       //b-veto (now not operative)
+			       /*if (bveto_mu == 1) */{
 				 
 				 hWSoftMuVeto->Fill(1, totalW);
 				 hWeffSoftMuVeto->Fill(1, efficiencyW);
@@ -808,6 +823,8 @@ void CoreMuonSelector::Summary() {
   hDeltaRLeptonsTwoLeptonsLevel   = FindOutput<TH1F*>("hDeltaRLeptonsTwoLeptonsLevel");
   hDeltaPhiLeptonsTwoLeptonsLevel = FindOutput<TH1F*>("hDeltaPhiLeptonsTwoLeptonsLevel");
   hDPhiPtllJetTwoLeptonsLevel     = FindOutput<TH1F*>("hDPhiPtllJetTwoLeptonsLevel");
+  hSigMuNoHtTwoLeptonsLevel       = FindOutput<TH1F*>("hSigMuNoHtTwoLeptonsLevel");
+  hSigElNoHtTwoLeptonsLevel       = FindOutput<TH1F*>("hSigElNoHtTwoLeptonsLevel");
 }
 
 //------------------------------------------------------------------------------

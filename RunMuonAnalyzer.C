@@ -47,11 +47,11 @@ void RunMuonAnalyzer(TString data,
   //---------------------------------
 
   // Create Project in Sequential Environment mode
-  if ( PAFMode == "Sequential")
+  if ( PAFMode == "Sequential" || PAFMode == "sequential")
     PAFProject* myProject = new PAFProject( new PAFSequentialEnvironment() );
 
   // Create Project in Cluster Environment mode
-  else if ( PAFMode == "Cluster" )
+  else if ( PAFMode == "Cluster" || PAFMode == "cluster" )
   PAFProject* myProject = new PAFProject( new PAFPROOFClusterEnvironment(10,20) );
 
   else {
@@ -90,7 +90,7 @@ void RunMuonAnalyzer(TString data,
     myProject->AddDataFile(path50 + "latino_WWTo2L2Nu.root");
 
     isdata             = false;
-    nEventsInTheSample = 128512
+    nEventsInTheSample = 128512;
     xSection           = 12.461;
     whichRun           = 2;
   }
@@ -111,7 +111,7 @@ void RunMuonAnalyzer(TString data,
 
     isdata             = false;
     nEventsInTheSample = 2309030;
-    xSection           = 00000000000000000001.000000000000000000;
+    xSection           = 87.315;
     whichRun           = 2;
   }
 

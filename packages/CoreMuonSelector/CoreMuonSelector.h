@@ -49,6 +49,8 @@ class CoreMuonSelector: public PAFChainItemSelector{
   // My Declarations:
   // Define data members
 
+  int SelectedChannel;
+
   // VARIABLES FOR EACH EVENT (to be initialized after every event)
  
   std::vector<float> *std_vector_lepton_pt;      
@@ -93,6 +95,7 @@ class CoreMuonSelector: public PAFChainItemSelector{
   float trkMet;
   float ch1;
   float ch2;
+  float channel;
 
   int   nextra;
   int   njet;
@@ -100,7 +103,6 @@ class CoreMuonSelector: public PAFChainItemSelector{
   int   bveto_ip;
   int   bveto_mu;
   int   nbjettche;
-  int   channel;
 
   // VARIABLES FOR ALL EVENTS (to be initialized only once)
 
@@ -202,6 +204,8 @@ class CoreMuonSelector: public PAFChainItemSelector{
   TH1F* hDeltaRLeptonsTwoLeptonsLevel;
   TH1F* hDeltaPhiLeptonsTwoLeptonsLevel;
   TH1F* hDPhiPtllJetTwoLeptonsLevel;
+  TH1F* hSigMuNoHtTwoLeptonsLevel;
+  TH1F* hSigElNoHtTwoLeptonsLevel;
 
   TH1F *hLooseIso;
 
@@ -215,7 +219,7 @@ class CoreMuonSelector: public PAFChainItemSelector{
   bool                        _Debug;                // True for verbose while debugging
   bool                        _Report;               // Count events and print final report
   TString                     _SameSign;             // Choose the type of events looking at the lepton's charge
-  TString                     _SelectedChannel;      // Choose the type of events looking at the lepton's charge
+  TString                     _FlavorChannel;        // Choose the type of events looking at the lepton's charge
   TString                     _outPath;              // Output folder
 
   // Weights
