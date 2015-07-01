@@ -96,13 +96,13 @@ class CoreMuonSelector: public PAFChainItemSelector{
   float ch1;
   float ch2;
   float channel;
+  float njet;
+  float nbjet;
+  float nbjettche;
 
   int   nextra;
-  int   njet;
-  int   nbjet;
   int   bveto_ip;
   int   bveto_mu;
-  int   nbjettche;
 
   // VARIABLES FOR ALL EVENTS (to be initialized only once)
 

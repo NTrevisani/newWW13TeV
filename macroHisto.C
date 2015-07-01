@@ -19,7 +19,7 @@
 
 const int nProcesses = 3;
 
-enum {iWW, iWJets, iTT};
+enum {iWW, iTT, iWJets};
 
 TString path = "rootFiles/OF/";
 
@@ -29,13 +29,13 @@ TH1F  *histo[nProcesses];
 TString process[nProcesses];
 
 process[iWW]     = "WW50";
-process[iWJets]  = "WJets50";
 process[iTT]     = "TTbar50";
+process[iWJets]  = "WJets50";
 
 Color_t color[nProcesses];
 
-color[iWW]     = kAzure;
-color[iWJets]  = kGreen;
+color[iWW]     = kAzure - 9;
+color[iWJets]  = kGray  + 1;
 color[iTT]     = kYellow;
 
 TString latinoVar = "";
@@ -64,10 +64,10 @@ void drawPlots(TString variable,
       return 0;
     }
 
-    histo[ip] = (TH1F*) input[ip] -> Get(variable);
+    histo[ip]  = (TH1F*) input[ip] -> Get(variable);
     histo[ip] -> Rebin(nrebin);
     histo[ip] -> GetXaxis() -> SetRangeUser(left,right);
-    
+
     //histograms normalization
     if (norm == "normon")
       histo[ip] -> Scale(1./histo[ip] -> Integral());
@@ -95,7 +95,7 @@ void drawPlots(TString variable,
     pad1->SetLogy();
   }  
   else if (drawLog == "logoff"){
-    histo[0] -> GetYaxis() -> SetRangeUser(0.,1.5*rangeY);
+    histo[0] -> GetYaxis() -> SetRangeUser(0.,2.*rangeY);
   }
 
   if(units != "[]")
@@ -110,7 +110,6 @@ void drawPlots(TString variable,
   histo[0]->GetYaxis()->SetTitleOffset(2.0);
   histo[0]->GetYaxis()->SetTitle(Form("entries / %.1f", histo[0]->GetBinWidth(0)));
 
-
   TLegend* leg = new TLegend(0.25,0.70,0.75,0.89);
   Float_t maxYaxis = 0.;
   
@@ -120,14 +119,14 @@ void drawPlots(TString variable,
     histo[ip]->SetLineColor(color[ip]);
     if( ip == 0 ) histo[ip] -> Draw();
     else histo[ip] -> Draw("same");
-    leg->AddEntry(histo[ip],process[ip],"l");
+    leg->AddEntry(histo[nProcesses -1 - ip],process[nProcesses -1 - ip],"l");
     maxYaxis += histo[ip] -> GetMaximum();
   }
   leg->SetTextSize(0.03);
   leg->SetFillColor(kWhite);
   leg->SetLineColor(kWhite);
   leg->Draw();
-  
+
   c1->Print(variable + "." + format, format);
 
   //building the tstack
@@ -139,13 +138,14 @@ void drawPlots(TString variable,
   THStack* hstack = new THStack("","");
 
   //use this histogram for stack Y axis range
-  TH1F* haxis = histo[0];
-  for(int i = 1; i < nProcesses; ++i){
-    haxis -> Add(histo[i]);
+  TH1F haxis("haxis","haxis",histo[0]->GetNbinsX(),left,right);
+  for(int i = 0; i < nProcesses; ++i){
+  haxis.Add(histo[i]);
   }
   float maxYaxisStack = 0.;
-  maxYaxisStack = haxis -> GetMaximum();
+  maxYaxisStack = haxis.GetMaximum();
 
+  //Y-axis draw options
   if (drawLog == "logon"){
     hstack -> SetMinimum(rangeMin);
     hstack -> SetMaximum(maxYaxisStack / rangeMin);// * rangeMin);
@@ -153,11 +153,13 @@ void drawPlots(TString variable,
 
   else if (drawLog == "logoff"){
     hstack -> SetMinimum(0.);
-    hstack -> SetMaximum(maxYaxisStack*2.5);
+    hstack -> SetMaximum(maxYaxisStack*1.5);
   }
 
-  for (int ip = 0; ip < nProcesses; ++ip)
-    hstack -> Add(histo[ip]);      
+  //actually building the stack
+  for (int w = 0; w < nProcesses; ++w){
+    hstack -> Add(histo[w]);      
+  }
 
   TCanvas *c2 = new TCanvas("stack","stack",600,800);
   c2->cd();
@@ -185,17 +187,10 @@ void drawPlots(TString variable,
   hstack -> GetYaxis() -> SetNdivisions(408);
 
   hstack -> Draw("hist");
-
-  /*
+  /*  
   TLegend* leg2 = new TLegend(0.20,0.75,0.70,0.89);
-  leg2->AddEntry(hWW,"WW","f");
-  leg2->AddEntry(hHWW,"H #rightarrow WW","f");
-  leg2->AddEntry(histo[0],"ZH #rightarrow #nu#nuWW","f");
-  leg2->AddEntry(hDark1,"HXX #rightarrow WWXX, m_{X} = 1GeV","f");
-  //leg2->AddEntry(hDark100,"HXX #rightarrow WWXX, m_{X} = 100GeV","f");
-  //leg2->AddEntry(hDark10,"HXX #rightarrow WWXX, m_{X} = 10GeV","f");
-  //leg2->AddEntry(hDark1000,"HXX #rightarrow WWXX, m_{X} = 1000GeV","f");
-  //leg2->AddEntry(hDark500,"HXX #rightarrow WWXX, m_{X} = 500GeV","f");
+  for (int ip = 0; ip < nProcesses; ++ip)
+    leg2->AddEntry(histo[ip],process[ip],"l");
   leg2->SetTextSize(0.03);
   leg2->SetFillColor(kWhite);
   leg2->SetLineColor(kWhite);
@@ -251,9 +246,8 @@ void macroHisto(TString printMode = "", TString logMode = "", TString normMode =
     gSystem->Exec("mkdir distributions/" + printMode + "Norm");
     gSystem->Exec("mkdir distributions/" + printMode + "Log");
     gSystem->Exec("mkdir distributions/" + printMode + "NormLog");
-
-    cout<<"siiiiiiiiiiii"<<endl;
   }
+
   else{
     cout<<"please print a valid plot format: 'C', 'png' or 'pdf'"<<endl;
     return;

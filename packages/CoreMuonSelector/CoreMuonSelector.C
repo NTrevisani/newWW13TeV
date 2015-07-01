@@ -49,7 +49,7 @@ void CoreMuonSelector::Initialise() {
 
   //Define weights
   _factN = 1.;
-  if (!_IsDATA && _XSection > 0) _factN = _XSection * _Luminosity / _NEvents;
+  //  if (!_IsDATA && _XSection > 0) _factN = _XSection * _Luminosity / _NEvents;
 
   //For counting
   if (_Report) {
@@ -78,106 +78,108 @@ void CoreMuonSelector::Initialise() {
   // Counting histograms
   //----------------------------------------------------------------------------
   
-  hWTrigger     = CreateH1F("hWTrigger",     "", 10, 0, 10);
-  hWMetCut      = CreateH1F("hWMetCut",      "", 10, 0, 10);
-  hWLowMinv     = CreateH1F("hWLowMinv",     "", 10, 0, 10);
-  hWZVeto       = CreateH1F("hWZVeto",       "", 10, 0, 10);
-  hWpMetCut     = CreateH1F("hWpMetCut",     "", 10, 0, 10);
-  hWJetVeto     = CreateH1F("hWJetVeto",     "", 10, 0, 10);
-  hWnJets       = CreateH1F("hWnJets",         "", 10, 0, 10);
-  hWeffnJets    = CreateH1F("hWeffnJets",      "", 10, 0, 10);
-  hWnBtaggedJets     = CreateH1F("hWnBtaggedJets",          "", 10, 0, 10);
-  hWeffnBtaggedJets  = CreateH1F("hWeffnBtaggedJets",       "", 10, 0, 10);
-  hWnJetsBveto    = CreateH1F("hWnJetsBveto",         "", 10, 0, 10);
-  hWeffnJetsBveto = CreateH1F("hWeffnJetsBveto",      "", 10, 0, 10);
-  hNjetsTwoLeptonsLevel    = CreateH1F("hNjetsTwoLeptonsLevel",         "", 10, 0, 10);
+  hWTrigger              = CreateH1F("hWTrigger",     "", 10, 0, 10);
+  hWMetCut               = CreateH1F("hWMetCut",      "", 10, 0, 10);
+  hWLowMinv              = CreateH1F("hWLowMinv",     "", 10, 0, 10);
+  hWZVeto                = CreateH1F("hWZVeto",       "", 10, 0, 10);
+  hWpMetCut              = CreateH1F("hWpMetCut",     "", 10, 0, 10);
+  hWJetVeto              = CreateH1F("hWJetVeto",     "", 10, 0, 10);
+  hWnJets                = CreateH1F("hWnJets",         "", 10, 0, 10);
+  hWeffnJets             = CreateH1F("hWeffnJets",      "", 10, 0, 10);
+  hWnBtaggedJets         = CreateH1F("hWnBtaggedJets",          "", 10, 0, 10);
+  hWeffnBtaggedJets      = CreateH1F("hWeffnBtaggedJets",       "", 10, 0, 10);
+  hWnJetsBveto           = CreateH1F("hWnJetsBveto",         "", 10, 0, 10);
+  hWeffnJetsBveto        = CreateH1F("hWeffnJetsBveto",      "", 10, 0, 10);
+  hNjetsTwoLeptonsLevel  = CreateH1F("hNjetsTwoLeptonsLevel",         "", 10, 0, 10);
   hWeffnJetsBvetoAfterHt = CreateH1F("hWeffnJetsBvetoAfterHt",      "", 10, 0, 10);
 
-  hWDeltaPhiJet = CreateH1F("hWDeltaPhiJet", "", 10, 0, 10);
-  hWSoftMuVeto  = CreateH1F("hWSoftMuVeto",  "", 10, 0, 10);
-  hWExtraLepton = CreateH1F("hWExtraLepton", "", 10, 0, 10);
-  hWPtll        = CreateH1F("hWPtll",        "", 10, 0, 10);
-  hWTopTagging  = CreateH1F("hWTopTagging",  "", 10, 0, 10);
+  hWDeltaPhiJet          = CreateH1F("hWDeltaPhiJet", "", 10, 0, 10);
+  hWSoftMuVeto           = CreateH1F("hWSoftMuVeto",  "", 10, 0, 10);
+  hWExtraLepton          = CreateH1F("hWExtraLepton", "", 10, 0, 10);
+  hWPtll                 = CreateH1F("hWPtll",        "", 10, 0, 10);
+  hWTopTagging           = CreateH1F("hWTopTagging",  "", 10, 0, 10);
 
-  hWeffTrigger     = CreateH1F("hWeffTrigger",     "", 10, 0, 10);
-  hWeffMetCut      = CreateH1F("hWeffMetCut",      "", 10, 0, 10);
-  hWeffLowMinv     = CreateH1F("hWeffLowMinv",     "", 10, 0, 10);
-  hWeffZVeto       = CreateH1F("hWeffZVeto",       "", 10, 0, 10);
-  hWeffpMetCut     = CreateH1F("hWeffpMetCut",     "", 10, 0, 10);
-  hWeffJetVeto     = CreateH1F("hWeffJetVeto",     "", 10, 0, 10);
-  hWeffDeltaPhiJet = CreateH1F("hWeffDeltaPhiJet", "", 10, 0, 10);
-  hWeffSoftMuVeto  = CreateH1F("hWeffSoftMuVeto",  "", 10, 0, 10);
-  hWeffExtraLepton = CreateH1F("hWeffExtraLepton", "", 10, 0, 10);
-  hWeffPtll        = CreateH1F("hWeffPtll",        "", 10, 0, 10);
-  hWeffTopTagging  = CreateH1F("hWeffTopTagging",  "", 10, 0, 10);
+  hWeffTrigger           = CreateH1F("hWeffTrigger",     "", 10, 0, 10);
+  hWeffMetCut            = CreateH1F("hWeffMetCut",      "", 10, 0, 10);
+  hWeffLowMinv           = CreateH1F("hWeffLowMinv",     "", 10, 0, 10);
+  hWeffZVeto             = CreateH1F("hWeffZVeto",       "", 10, 0, 10);
+  hWeffpMetCut           = CreateH1F("hWeffpMetCut",     "", 10, 0, 10);
+  hWeffJetVeto           = CreateH1F("hWeffJetVeto",     "", 10, 0, 10);
+  hWeffDeltaPhiJet       = CreateH1F("hWeffDeltaPhiJet", "", 10, 0, 10);
+  hWeffSoftMuVeto        = CreateH1F("hWeffSoftMuVeto",  "", 10, 0, 10);
+  hWeffExtraLepton       = CreateH1F("hWeffExtraLepton", "", 10, 0, 10);
+  hWeffPtll              = CreateH1F("hWeffPtll",        "", 10, 0, 10);
+  hWeffTopTagging        = CreateH1F("hWeffTopTagging",  "", 10, 0, 10);
 
-  hLooseIso = CreateH1F("hLooseIso",  "", 100, 0, 10);
+  hLooseIso              = CreateH1F("hLooseIso",        "", 100, 0, 10);
 
   // WW level histograms
   //---------------------------------------------------------------------------
 
   for (Int_t nC=0; nC<4; nC++) {
 
-    hPtLepton1WWLevel[nC]       = CreateH1F(Form("hPtLepton1WWLevel%.1i", nC),       "", 200, 0, 200);
-    hPtLepton2WWLevel[nC]       = CreateH1F(Form("hPtLepton2WWLevel%.1i", nC),       "", 200, 0, 200);
-    hPtDiLeptonWWLevel[nC]      = CreateH1F(Form("hPtDiLeptonWWLevel%.1i", nC),      "", 200, 0, 200);
-    hMinvWWLevel[nC]            = CreateH1F(Form("hMinvWWLevel%.1i", nC),            "", 200, 0, 200);
-    hMtWWLevel[nC]              = CreateH1F(Form("hMtWWLevel%.1i", nC),              "", 250, 0, 250);
-    hpfMetWWLevel[nC]           = CreateH1F(Form("hpfMetWWLevel%.1i", nC),           "", 150, 0, 150);
-    hpminMetWWLevel[nC]         = CreateH1F(Form("hpminMetWWLevel%.1i", nC),         "", 150, 0, 150);
-    hDeltaRLeptonsWWLevel[nC]   = CreateH1F(Form("hDeltaRLeptonsWWLevel%.1i", nC),   "",  50, 0,   5);
-    hDeltaPhiLeptonsWWLevel[nC] = CreateH1F(Form("hDeltaPhiLeptonsWWLevel%.1i", nC), "",  32, 0, 3.2);
-    hDPhiPtllJetWWLevel[nC]     = CreateH1F(Form("hDPhiPtllJetWWLevel%.1i", nC),     "",  32, 0, 3.2);
-    hSigEl[nC]                  = CreateH1F(Form("hSigEl%.1i", nC),                   "", 1000,0.,500);
-    hSigMu[nC]                  = CreateH1F(Form("hSigMu%.1i", nC),                   "", 1000,0.,500);
+    hPtLepton1WWLevel[nC]             = CreateH1F(Form("hPtLepton1WWLevel%.1i", nC),             "", 1000, 0, 1000);
+    hPtLepton2WWLevel[nC]             = CreateH1F(Form("hPtLepton2WWLevel%.1i", nC),             "", 1000, 0, 1000);
+    hPtDiLeptonWWLevel[nC]            = CreateH1F(Form("hPtDiLeptonWWLevel%.1i", nC),            "", 1000, 0, 1000);
+    hMinvWWLevel[nC]                  = CreateH1F(Form("hMinvWWLevel%.1i", nC),                  "", 1000, 0, 1000);
+    hMtWWLevel[nC]                    = CreateH1F(Form("hMtWWLevel%.1i", nC),                    "", 1000, 0, 1000);
+    hpfMetWWLevel[nC]                 = CreateH1F(Form("hpfMetWWLevel%.1i", nC),                 "", 1000, 0, 1000);
+    hpminMetWWLevel[nC]               = CreateH1F(Form("hpminMetWWLevel%.1i", nC),               "", 1000, 0, 1000);
+    hDeltaRLeptonsWWLevel[nC]         = CreateH1F(Form("hDeltaRLeptonsWWLevel%.1i", nC),         "",   50, 0,    5);
+    hDeltaPhiLeptonsWWLevel[nC]       = CreateH1F(Form("hDeltaPhiLeptonsWWLevel%.1i", nC),       "",   32, 0,  3.2);
+    hDPhiPtllJetWWLevel[nC]           = CreateH1F(Form("hDPhiPtllJetWWLevel%.1i", nC),           "",   32, 0,  3.2);
+    hSigEl[nC]                        = CreateH1F(Form("hSigEl%.1i", nC),                        "", 1000, 0, 1000);
+    hSigMu[nC]                        = CreateH1F(Form("hSigMu%.1i", nC),                        "", 1000, 0, 1000);
 
-    hPtLepton1WWLevelNoHt[nC]       = CreateH1F(Form("hPtLepton1WWLevelNoHt%.1i", nC),       "", 200, 0, 200);
-    hPtLepton2WWLevelNoHt[nC]       = CreateH1F(Form("hPtLepton2WWLevelNoHt%.1i", nC),       "", 200, 0, 200);
-    hPtDiLeptonWWLevelNoHt[nC]      = CreateH1F(Form("hPtDiLeptonWWLevelNoHt%.1i", nC),      "", 200, 0, 200);
-    hMinvWWLevelNoHt[nC]            = CreateH1F(Form("hMinvWWLevelNoHt%.1i", nC),            "", 200, 0, 200);
-    hMtWWLevelNoHt[nC]              = CreateH1F(Form("hMtWWLevelNoHt%.1i", nC),              "", 250, 0, 250);
-    hpfMetWWLevelNoHt[nC]           = CreateH1F(Form("hpfMetWWLevelNoHt%.1i", nC),           "", 150, 0, 150);
-    hpminMetWWLevelNoHt[nC]         = CreateH1F(Form("hpminMetWWLevelNoHt%.1i", nC),         "", 150, 0, 150);
-    hDeltaRLeptonsWWLevelNoHt[nC]   = CreateH1F(Form("hDeltaRLeptonsWWLevelNoHt%.1i", nC),   "",  50, 0,   5);
-    hDeltaPhiLeptonsWWLevelNoHt[nC] = CreateH1F(Form("hDeltaPhiLeptonsWWLevelNoHt%.1i", nC), "",  32, 0, 3.2);
-    hDPhiPtllJetWWLevelNoHt[nC]     = CreateH1F(Form("hDPhiPtllJetWWLevelNoHt%.1i", nC),     "",  32, 0, 3.2);
-    hSigElNoHt[nC]                  = CreateH1F(Form("hSigElNoHt%.1i", nC),                   "", 1000,0.,500);
-    hSigMuNoHt[nC]                  = CreateH1F(Form("hSigMuNoHt%.1i", nC),                   "", 1000,0.,500);
+    cout<<"hola"<<endl;
 
-    hPtLepton1WWLevelHtPlus[nC]       = CreateH1F(Form("hPtLepton1WWLevelHtPlus%.1i", nC),       "", 200, 0, 200);
-    hPtLepton2WWLevelHtPlus[nC]       = CreateH1F(Form("hPtLepton2WWLevelHtPlus%.1i", nC),       "", 200, 0, 200);
-    hPtDiLeptonWWLevelHtPlus[nC]      = CreateH1F(Form("hPtDiLeptonWWLevelHtPlus%.1i", nC),      "", 200, 0, 200);
-    hMinvWWLevelHtPlus[nC]            = CreateH1F(Form("hMinvWWLevelHtPlus%.1i", nC),            "", 200, 0, 200);
-    hMtWWLevelHtPlus[nC]              = CreateH1F(Form("hMtWWLevelHtPlus%.1i", nC),              "", 250, 0, 250);
-    hpfMetWWLevelHtPlus[nC]           = CreateH1F(Form("hpfMetWWLevelHtPlus%.1i", nC),           "", 150, 0, 150);
-    hpminMetWWLevelHtPlus[nC]         = CreateH1F(Form("hpminMetWWLevelHtPlus%.1i", nC),         "", 150, 0, 150);
-    hDeltaRLeptonsWWLevelHtPlus[nC]   = CreateH1F(Form("hDeltaRLeptonsWWLevelHtPlus%.1i", nC),   "",  50, 0,   5);
-    hDeltaPhiLeptonsWWLevelHtPlus[nC] = CreateH1F(Form("hDeltaPhiLeptonsWWLevelHtPlus%.1i", nC), "",  32, 0, 3.2);
-    hDPhiPtllJetWWLevelHtPlus[nC]     = CreateH1F(Form("hDPhiPtllJetWWLevelHtPlus%.1i", nC),     "",  32, 0, 3.2);
-    hSigElHtPlus[nC]                  = CreateH1F(Form("hSigElHtPlus%.1i", nC),                   "", 1000,0.,500);
-    hSigMuHtPlus[nC]                  = CreateH1F(Form("hSigMuHtPlus%.1i", nC),                   "", 1000,0.,500);
+    hPtLepton1WWLevelNoHt[nC]         = CreateH1F(Form("hPtLepton1WWLevelNoHt%.1i", nC),         "", 1000, 0, 1000);
+    hPtLepton2WWLevelNoHt[nC]         = CreateH1F(Form("hPtLepton2WWLevelNoHt%.1i", nC),         "", 1000, 0, 1000);
+    hPtDiLeptonWWLevelNoHt[nC]        = CreateH1F(Form("hPtDiLeptonWWLevelNoHt%.1i", nC),        "", 1000, 0, 1000);
+    hMinvWWLevelNoHt[nC]              = CreateH1F(Form("hMinvWWLevelNoHt%.1i", nC),              "", 1000, 0, 1000);
+    hMtWWLevelNoHt[nC]                = CreateH1F(Form("hMtWWLevelNoHt%.1i", nC),                "", 1000, 0, 1000);
+    hpfMetWWLevelNoHt[nC]             = CreateH1F(Form("hpfMetWWLevelNoHt%.1i", nC),             "", 1000, 0, 1000);
+    hpminMetWWLevelNoHt[nC]           = CreateH1F(Form("hpminMetWWLevelNoHt%.1i", nC),           "", 1000, 0, 1000);
+    hDeltaRLeptonsWWLevelNoHt[nC]     = CreateH1F(Form("hDeltaRLeptonsWWLevelNoHt%.1i", nC),     "",   50, 0,    5);
+    hDeltaPhiLeptonsWWLevelNoHt[nC]   = CreateH1F(Form("hDeltaPhiLeptonsWWLevelNoHt%.1i", nC),   "",   32, 0,  3.2);
+    hDPhiPtllJetWWLevelNoHt[nC]       = CreateH1F(Form("hDPhiPtllJetWWLevelNoHt%.1i", nC),       "",   32, 0,  3.2);
+    hSigElNoHt[nC]                    = CreateH1F(Form("hSigElNoHt%.1i", nC),                    "", 1000, 0, 1000);
+    hSigMuNoHt[nC]                    = CreateH1F(Form("hSigMuNoHt%.1i", nC),                    "", 1000, 0, 1000);
 
-    hHt[nC]                     = CreateH1F(Form("hHt%.1i",               nC),       "", 3000, 0, 3000);
-    hHtAfter[nC]                = CreateH1F(Form("hHtAfter%.1i",          nC),       "", 3000, 0, 3000);
+    hPtLepton1WWLevelHtPlus[nC]       = CreateH1F(Form("hPtLepton1WWLevelHtPlus%.1i", nC),       "", 1000, 0, 1000);
+    hPtLepton2WWLevelHtPlus[nC]       = CreateH1F(Form("hPtLepton2WWLevelHtPlus%.1i", nC),       "", 1000, 0, 1000);
+    hPtDiLeptonWWLevelHtPlus[nC]      = CreateH1F(Form("hPtDiLeptonWWLevelHtPlus%.1i", nC),      "", 1000, 0, 1000);
+    hMinvWWLevelHtPlus[nC]            = CreateH1F(Form("hMinvWWLevelHtPlus%.1i", nC),            "", 1000, 0, 1000);
+    hMtWWLevelHtPlus[nC]              = CreateH1F(Form("hMtWWLevelHtPlus%.1i", nC),              "", 1000, 0, 1000);
+    hpfMetWWLevelHtPlus[nC]           = CreateH1F(Form("hpfMetWWLevelHtPlus%.1i", nC),           "", 1000, 0, 1000);
+    hpminMetWWLevelHtPlus[nC]         = CreateH1F(Form("hpminMetWWLevelHtPlus%.1i", nC),         "", 1000, 0, 1000);
+    hDeltaRLeptonsWWLevelHtPlus[nC]   = CreateH1F(Form("hDeltaRLeptonsWWLevelHtPlus%.1i", nC),   "",   50, 0,    5);
+    hDeltaPhiLeptonsWWLevelHtPlus[nC] = CreateH1F(Form("hDeltaPhiLeptonsWWLevelHtPlus%.1i", nC), "",   32, 0,  3.2);
+    hDPhiPtllJetWWLevelHtPlus[nC]     = CreateH1F(Form("hDPhiPtllJetWWLevelHtPlus%.1i", nC),     "",   32, 0,  3.2);
+    hSigElHtPlus[nC]                  = CreateH1F(Form("hSigElHtPlus%.1i", nC),                  "", 1000, 0, 1000);
+    hSigMuHtPlus[nC]                  = CreateH1F(Form("hSigMuHtPlus%.1i", nC),                  "", 1000, 0, 1000);
+
+    hHt[nC]                           = CreateH1F(Form("hHt%.1i",               nC),             "", 3000, 0, 3000);
+    hHtAfter[nC]                      = CreateH1F(Form("hHtAfter%.1i",          nC),             "", 3000, 0, 3000);
   }
 
-  hWnJetsBvetoAfterHt = CreateH1F("hWnJetsBvetoAfterHt","",10,0,10);
+  hWnJetsBvetoAfterHt                 = CreateH1F("hWnJetsBvetoAfterHt","",10,0,10);
 
   // TwoLeptons level histograms
   //----------------------------------------------------------------------------
 
-  hPtLepton1TwoLeptonsLevel       = CreateH1F("hPtLepton1TwoLeptonsLevel",       "", 200, 0, 200);
-  hPtLepton2TwoLeptonsLevel       = CreateH1F("hPtLepton2TwoLeptonsLevel",       "", 200, 0, 200);
-  hPtDiLeptonTwoLeptonsLevel      = CreateH1F("hPtDiLeptonTwoLeptonsLevel",      "", 200, 0, 200);
-  hMinvTwoLeptonsLevel            = CreateH1F("hMinvTwoLeptonsLevel",            "", 200, 0, 200);
-  hMtTwoLeptonsLevel              = CreateH1F("hMtTwoLeptonsLevel",              "", 250, 0, 250);
-  hpfMetTwoLeptonsLevel           = CreateH1F("hpfMetTwoLeptonsLevel",           "", 150, 0, 150);
-  hpminMetTwoLeptonsLevel         = CreateH1F("hpminMetTwoLeptonsLevel",         "", 150, 0, 150);
-  hDeltaRLeptonsTwoLeptonsLevel   = CreateH1F("hDeltaRLeptonsTwoLeptonsLevel",   "",  50, 0,   5);
-  hDeltaPhiLeptonsTwoLeptonsLevel = CreateH1F("hDeltaPhiLeptonsTwoLeptonsLevel", "",  32, 0, 3.2);
-  hDPhiPtllJetTwoLeptonsLevel     = CreateH1F("hDPhiPtllJetTwoLeptonsLevel",     "",  32, 0, 3.2);
-  hSigMuNoHtTwoLeptonsLevel       = CreateH1F("hSigMuNoHtTwoLeptonsLevel",       "", 100, 0,  50);
-  hSigElNoHtTwoLeptonsLevel       = CreateH1F("hSigElNoHtTwoLeptonsLevel",       "", 100, 0,  50);
+  hPtLepton1TwoLeptonsLevel           = CreateH1F("hPtLepton1TwoLeptonsLevel",                   "", 1000, 0, 1000);
+  hPtLepton2TwoLeptonsLevel           = CreateH1F("hPtLepton2TwoLeptonsLevel",                   "", 1000, 0, 1000);
+  hPtDiLeptonTwoLeptonsLevel          = CreateH1F("hPtDiLeptonTwoLeptonsLevel",                  "", 1000, 0, 1000);
+  hMinvTwoLeptonsLevel                = CreateH1F("hMinvTwoLeptonsLevel",                        "", 1000, 0, 1000);
+  hMtTwoLeptonsLevel                  = CreateH1F("hMtTwoLeptonsLevel",                          "", 1000, 0, 1000);
+  hpfMetTwoLeptonsLevel               = CreateH1F("hpfMetTwoLeptonsLevel",                       "", 1000, 0, 1000);
+  hpminMetTwoLeptonsLevel             = CreateH1F("hpminMetTwoLeptonsLevel",                     "", 1000, 0, 1000);
+  hDeltaRLeptonsTwoLeptonsLevel       = CreateH1F("hDeltaRLeptonsTwoLeptonsLevel",               "",   50, 0,    5);
+  hDeltaPhiLeptonsTwoLeptonsLevel     = CreateH1F("hDeltaPhiLeptonsTwoLeptonsLevel",             "",   32, 0,  3.2);
+  hDPhiPtllJetTwoLeptonsLevel         = CreateH1F("hDPhiPtllJetTwoLeptonsLevel",                 "",   32, 0,  3.2);
+  hSigMuNoHtTwoLeptonsLevel           = CreateH1F("hSigMuNoHtTwoLeptonsLevel",                   "", 1000, 0, 1000);
+  hSigElNoHtTwoLeptonsLevel           = CreateH1F("hSigElNoHtTwoLeptonsLevel",                   "", 1000, 0, 1000);
 
   //Vectors
   //----------------------------------------------------------------------------
@@ -340,16 +342,15 @@ void CoreMuonSelector::InsideLoop() {
   Assign("ch2",ch2);
   Assign("jetRho",jetRho);
   Assign("channel",channel);
+  Assign("njet",njet);
+  Assign("nbjet",nbjet);
+  Assign("nbjettche",nbjettche);
   
   //Assigning values to integer variables
   //----------------------------------------------------------------------------
 
-  Assign("nextra",nextra);
-  Assign("njet",njet);
-  Assign("nbjet",nbjet);
   Assign("bveto_ip",bveto_ip);
   Assign("bveto_mu",bveto_mu);
-  Assign("nbjettche",nbjettche);
 
   //Creating the variables we need
   //----------------------------------------------------------------------------
@@ -390,6 +391,13 @@ void CoreMuonSelector::InsideLoop() {
    for (int i = 0; i < njet; ++i)
      if(std_vector_jet_pt->at(i) > 0)
        Ht += std_vector_jet_pt->at(i);
+
+   //defining nextra
+   nextra = 0;
+   for (int i = 0; i < std_vector_lepton_pt -> size(); ++i)
+     if(std_vector_lepton_pt -> at(i) > 10)
+       ++nextra;
+   nextra = nextra -2;
    
    // The selection begins here
    //--------------------------------------------------------------------------
@@ -407,8 +415,10 @@ void CoreMuonSelector::InsideLoop() {
 	   if (IsTightLepton(1) && !IsTightLepton(0))
 	     hLooseIso -> Fill(ElectronIsolation(0), totalW);
 	   
-	   if (IsTightLepton(0))
-	     if (IsTightLepton(1)){
+	   if (IsIsolatedLepton(0))
+	     if (IsIsolatedLepton(1))
+	       if (IsTightLepton(0))
+		 if (IsTightLepton(1)){
 	       
 	       //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	       //
@@ -829,8 +839,10 @@ void CoreMuonSelector::Summary() {
 
 //------------------------------------------------------------------------------
 // IsTightLepton
+//
+// https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
+// egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium
 //------------------------------------------------------------------------------
-
 bool CoreMuonSelector::IsTightLepton(int k)
 {
   bool is_tight_lepton = false;
@@ -878,6 +890,7 @@ bool CoreMuonSelector::IsTightLepton(int k)
     }
 
   return is_tight_lepton;
+
 }
 
 
@@ -901,7 +914,7 @@ float CoreMuonSelector::MuonIsolation(int k)
 	      0.5*std_vector_lepton_sumPUPt->at(k)));
 
   relative_isolation /= pt;
-  
+
   return relative_isolation;
 }
 
@@ -923,7 +936,7 @@ float CoreMuonSelector::ElectronIsolation(int k)
     max(float(0.0),
 	float(std_vector_lepton_photonIso->at(k) +
 	      std_vector_lepton_neutralHadronIso->at(k) -
-	      std_vector_electron_effectiveArea->at(k) * jetRho));
+	      jetRho*std_vector_electron_effectiveArea->at(k)));
   
   relative_isolation /= pt;
   
@@ -940,7 +953,7 @@ bool CoreMuonSelector::IsIsolatedLepton(int k)
 
   bool is_isolated_lepton = false;
 
-  if      (fabs(id) == 11) is_isolated_lepton = true;//(ElectronIsolation(k) < 0.15);
+  if      (fabs(id) == 11) is_isolated_lepton = true;  //(ElectronIsolation(k) < 0.15);
   else if (fabs(id) == 13) is_isolated_lepton = (MuonIsolation(k)     < 0.12);
   
   return is_isolated_lepton;

@@ -4,7 +4,7 @@ hPtDiLeptonTwoLeptonsLevel          0.      500.    10      p_{T}^{ll}[GeV]
 hMinvTwoLeptonsLevel                0.      600.    10      m_{ll}[GeV]      
 hMt1TwoLeptonsLevel                 0.      600.    20      m_{T}W_{1}[GeV]      
 hMt2TwoLeptonsLevel                 0.      600.    20      m_{T}W_{2}[GeV]      
-hMtTwoLeptonsLevel                  0.     1000.    20      m_{T}Higgs[GeV]      
+hMtTwoLeptonsLevel                  0.     1000.    10      m_{T}Higgs[GeV]      
 hpfMetTwoLeptonsLevel               0.      500.    10      pfMET[GeV]  
 hpminMetTwoLeptonsLevel             0.      600.    10       mpMET[GeV]      
 hDeltaRLeptonsTwoLeptonsLevel       0.        4.     1      #DeltaR_{ll}         
@@ -72,3 +72,4 @@ hDeltaPhiLeptonsWWLevel0	    0.	     3.14   1	   #Delta#phi_{ll}
 hDPhiPtllJetWWLevel0    	    0.	     3.14   1	   #Delta#phi_{lljet}
 hTrkMetWWLevel0                     0.      600.   20      TrkMet[GeV]	
 hHtWWLevel0			    0.	    600.   40	   Ht[GeV]
+hHt3				    0.	    1000.  5	   Ht[GeV]
