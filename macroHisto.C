@@ -21,8 +21,6 @@ const int nProcesses = 3;
 
 enum {iWW, iTT, iWJets};
 
-TString path = "rootFiles/OF/";
-
 TFile *input[nProcesses];
 TH1F  *histo[nProcesses];
 
@@ -38,10 +36,6 @@ color[iWW]     = kAzure - 9;
 color[iWJets]  = kGray  + 1;
 color[iTT]     = kYellow;
 
-TString latinoVar = "";
-TString darkVar = "";
-Float_t range = 1000.;
-
 //drawing instructions
 void drawPlots(TString variable,
 	       Float_t left, 
@@ -50,10 +44,13 @@ void drawPlots(TString variable,
 	       TString units = "",
 	       TString format,
 	       TString drawLog,
-	       TString norm
+	       TString norm,
+	       TString Channel
 	       ){
 
   Float_t rangeY = 0.;
+
+  TString path = "rootFiles/" + Channel + "/";
 
   for (int ip = 0; ip < nProcesses; ++ip){
     TString fileName = path + process[ip] + ".root";
@@ -206,37 +203,42 @@ void drawPlots(TString variable,
   delete hstack;
 
   if (drawLog == "logoff" && norm == "normoff"){
-    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + format);
-    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + format);
+    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format);
+    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format);
   }
   else if(drawLog == "logon" && norm == "normoff"){
-    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + format + "Log");
-    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + format + "Log");
+    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "Log");
+    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "Log");
   }
   else if(drawLog == "logoff" && norm == "normon"){
-    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + format + "Norm");
-    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + format + "Norm");
+    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "Norm");
+    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "Norm");
   }
   else if(drawLog == "logon" && norm == "normon"){
-    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + format + "NormLog");
-    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + format + "NormLog");
+    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "NormLog");
+    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "NormLog");
   }
 
 }
 
 //main function
-void macroHisto(TString printMode = "", TString logMode = "", TString normMode = ""){
+void macroHisto(TString printMode = "", 
+		TString logMode   = "", 
+		TString normMode  = "",
+		TString channel   = ""
+		){
 
-  if(printMode == "" || logMode == "" || normMode == ""){
-    cout<<"***************************************************************"<<endl;
+  if(printMode == "" || logMode == "" || normMode == "" || channel == ""){
+    cout<<"************************************************************************"<<endl;
     cout<<"Please choose a set of options."<<endl;
-    cout<<"root -l -b -q 'macroHisto.C(printMode,logMode,normMode)', where:"<<endl;
+    cout<<"root -l -b -q 'macroHisto.C(printMode,logMode,normMode,channel)', where:"<<endl;
     cout<<"printMode = 'C', 'png' or 'pdf'"<<endl;
     cout<<"logMode = 'logon' or 'logoff'"<<endl;
     cout<<"normMode = 'normon' or 'normoff'"<<endl;
+    cout<<"channel = 'All' or 'OF' or 'SF' or 'MuMu' or 'EE' or 'EMu' or 'MuE'"<<endl;
     cout<<"I suggest, for example:"<<endl;
-    cout<<"root -l -b -q 'macroHisto.C(\"png\",\"logon\",\"normoff\")'"<<endl;
-    cout<<"***************************************************************"<<endl;
+    cout<<"root -l -b -q 'macroHisto.C(\"png\",\"logon\",\"normoff\",\"OF\")'"<<endl;
+    cout<<"************************************************************************"<<endl;
     return;
   }
 
@@ -263,7 +265,13 @@ void macroHisto(TString printMode = "", TString logMode = "", TString normMode =
     return;
   }
 
-  gSystem->Exec("mkdir distributions/" + printMode);
+  if (channel != "All" && channel !=  "OF" && channel !=  "SF" && channel !=  "MuMu" && channel !=  "EE" && channel !=  "EMu" && channel !=  "MuE"){
+    cout<<"Please select a valid flavour channel to look at: 'All' or 'OF' or 'SF' or 'MuMu' or 'EE' or 'EMu' or 'MuE'"<<endl;
+    return;
+  }
+
+  gSystem->Exec("mkdir distributions/" + channel);
+  gSystem->Exec("mkdir distributions/" + channel + "/" + printMode);
 
   Int_t cont = 0;
   TString var;
@@ -283,7 +291,7 @@ void macroHisto(TString printMode = "", TString logMode = "", TString normMode =
     input_.open("out.tmp",std::ios::in);
     input_ >> var >> leftBound >> rightBound >> nbin >> units;
     input_.close();
-    drawPlots(var, leftBound, rightBound, nbin, units, printMode, logMode, normMode);
+    drawPlots(var, leftBound, rightBound, nbin, units, printMode, logMode, normMode, channel);
   } 
   
   inFile.close();

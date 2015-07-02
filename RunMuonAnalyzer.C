@@ -16,7 +16,8 @@
 void RunMuonAnalyzer(TString data,
 		     TString flavorChannel,
 		     TString sameSign,
-		     TString PAFMode
+		     TString PAFMode,
+		     Float_t luminosity  //In pb-1
 		     ) {
  
   gSystem->Load("libPAF.so");   
@@ -31,7 +32,6 @@ void RunMuonAnalyzer(TString data,
   gSystem -> Exec("mkdir rootFiles/" + flavorChannel);
 
   // Manual Input Parameters
-  float    luminosity       = 20000.0; //In pb-1
   bool     debug            = false;   //For verbose while debugging
   int      nEventsToProcess = -1;      //Number of events to be processed (-1 = all)
   bool     doReport         = false;   //Count events and print final report
