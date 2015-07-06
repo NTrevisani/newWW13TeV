@@ -55,6 +55,10 @@ class CoreMuonSelector: public PAFChainItemSelector{
  
   std::vector<float> *std_vector_lepton_pt;      
   std::vector<float> *std_vector_jet_pt;         
+  std::vector<float> *std_vector_lepton_eta;      
+  std::vector<float> *std_vector_jet_eta;         
+  std::vector<float> *std_vector_lepton_phi;      
+  std::vector<float> *std_vector_jet_phi;         
   std::vector<float> *std_vector_lepton_muSIP3D; 
   std::vector<float> *std_vector_lepton_elSIP3D; 
   std::vector<float> *std_vector_lepton_id;
@@ -73,6 +77,8 @@ class CoreMuonSelector: public PAFChainItemSelector{
   std::vector<float> *std_vector_lepton_neutralHadronIso;
   std::vector<float> *std_vector_lepton_sumPUPt;
   std::vector<float> *std_vector_electron_effectiveArea;
+  std::vector<float> *std_vector_lepton_BestTrackdxy;
+  std::vector<float> *std_vector_lepton_BestTrackdz;
 
   float jetRho;
   float puW;
@@ -128,6 +134,8 @@ class CoreMuonSelector: public PAFChainItemSelector{
   TH1F* hWnJetsBveto;
   TH1F* hWeffnJetsBveto;
   TH1F* hNjetsTwoLeptonsLevel;
+  TH1F* hNjetsPlot1TwoLeptonsLevel;
+  TH1F* hNjetsPlot2TwoLeptonsLevel;
   TH1F* hWeffnJetsBvetoAfterHt;
   TH1F* hWnJetsBvetoAfterHt;
 
@@ -247,6 +255,8 @@ class CoreMuonSelector: public PAFChainItemSelector{
     hWnJetsBveto(),
     hWeffnJetsBveto(),
     hNjetsTwoLeptonsLevel(),
+    hNjetsPlot1TwoLeptonsLevel(),
+    hNjetsPlot2TwoLeptonsLevel(),
     hWeffnJetsBvetoAfterHt(),
     
     hWDeltaPhiJet(),

@@ -152,7 +152,7 @@ void RunMuonAnalyzer(TString data,
   // SELECTOR AND PACKAGES
 
   //Add the core selector, this one is essential 
-  myProject->AddSelectorPackage("CoreMuonSelector");
+  myProject->AddSelectorPackage("WWAnalysisSelector");
 
   //Add the additional selectors if needed (and if available!)
 

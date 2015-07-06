@@ -1,5 +1,3 @@
-//compares variables value from latinos H->WW->lvlv with HXX->XXWW->XXlvlv and HZ->WWvv->lvlvvv
-
 //run typing:  root -l -b -q 'macroHisto.C("png","logon","normoff")'
 
 #include "TFile.h"
@@ -16,6 +14,8 @@
 #include "TStyle.h"
 #include <iostream.h>
 #include "THStack.h"
+#include "TGraphErrors.h"
+#include "TLatex.h"
 
 const int nProcesses = 3;
 
@@ -36,6 +36,8 @@ color[iWW]     = kAzure - 9;
 color[iWJets]  = kGray  + 1;
 color[iTT]     = kYellow;
 
+TGraphErrors *errors = new TGraphErrors();
+
 //drawing instructions
 void drawPlots(TString variable,
 	       Float_t left, 
@@ -45,7 +47,8 @@ void drawPlots(TString variable,
 	       TString format,
 	       TString drawLog,
 	       TString norm,
-	       TString Channel
+	       TString Channel,
+	       TString StackMode
 	       ){
 
   Float_t rangeY = 0.;
@@ -58,7 +61,7 @@ void drawPlots(TString variable,
 
     if (input[ip] -> GetListOfKeys() -> Contains(variable) == 0){
       cout<<"I cannot find the histogram named "<<variable<<". I'll skip it."<<endl;
-      return 0;
+      return;
     }
 
     histo[ip]  = (TH1F*) input[ip] -> Get(variable);
@@ -116,7 +119,7 @@ void drawPlots(TString variable,
     histo[ip]->SetLineColor(color[ip]);
     if( ip == 0 ) histo[ip] -> Draw();
     else histo[ip] -> Draw("same");
-    leg->AddEntry(histo[nProcesses -1 - ip],process[nProcesses -1 - ip],"l");
+    leg->AddEntry(histo[nProcesses -1 - ip],process[nProcesses -1 - ip],"f");
     maxYaxis += histo[ip] -> GetMaximum();
   }
   leg->SetTextSize(0.03);
@@ -124,7 +127,8 @@ void drawPlots(TString variable,
   leg->SetLineColor(kWhite);
   leg->Draw();
 
-  c1->Print(variable + "." + format, format);
+  if (StackMode == "stackoff")
+    c1->Print(variable + "." + format, format);
 
   //building the tstack
   for (int ip = 0; ip < nProcesses; ++ip){
@@ -132,16 +136,44 @@ void drawPlots(TString variable,
     histo[ip]    -> SetFillStyle(1001);
   }
 
-  THStack* hstack = new THStack("","");
+  TString title  = variable;
+  TString njets  = "Inclusive";
 
+  if (title.Contains("0")) njets = "0  Jet";
+  if (title.Contains("1")) njets = "1  Jet";
+  if (title.Contains("2")) njets = "2+ Jet";
+
+  /*
+  if(title.Contains("stack"))
+    title.Remove(title.Length() - 5);
+  if(title.Contains("TwoLeptonsLevel"))
+    title.Remove(title.Length() - 15);
+  if(title.Contains("WWLevel"))
+    title.Remove(title.Length() - 8);
+  cout<<variable<<","<<title<<endl;
+  */
+  THStack* hstack = new THStack(title, title);
+  
   //use this histogram for stack Y axis range
-  TH1F haxis("haxis","haxis",histo[0]->GetNbinsX(),left,right);
+  TH1F haxis("haxis","haxis",histo[0]->GetNbinsX(),histo[0]->GetXaxis()->GetXmin(),histo[0]->GetXaxis()->GetXmax());
   for(int i = 0; i < nProcesses; ++i){
   haxis.Add(histo[i]);
   }
+  
+  Float_t large = haxis.GetBinWidth(0) / 2.;
+  //building error graph
+  for(int e = 0; e < haxis.GetNbinsX(); ++e){
+    errors -> SetPoint(e, haxis.GetXaxis()->GetBinCenter(e), haxis.GetBinContent(e));
+    errors -> SetPointError(e, large, haxis.GetBinError(e));
+  }
   float maxYaxisStack = 0.;
-  maxYaxisStack = haxis.GetMaximum();
-
+  Int_t maxBin = haxis.GetMaximumBin();
+  maxYaxisStack = haxis.GetBinContent(maxBin) + errors -> GetErrorY(maxBin) / 2;
+  
+  errors -> SetMarkerStyle(21);
+  errors -> SetFillStyle(3005);	
+  errors -> SetFillColor(kBlack);
+  
   //Y-axis draw options
   if (drawLog == "logon"){
     hstack -> SetMinimum(rangeMin);
@@ -158,32 +190,36 @@ void drawPlots(TString variable,
     hstack -> Add(histo[w]);      
   }
 
-  TCanvas *c2 = new TCanvas("stack","stack",600,800);
-  c2->cd();
-  
-  TPad* pad2 = new TPad("pad2", "pad2", 0., 0., 1.0, 1.0);
-  pad2->SetLeftMargin(0.20);
-  pad2->SetBottomMargin(0.18);
-  pad2->Draw();
-  pad2->cd();
-  if (drawLog == "logon")
-    pad2->SetLogy();
-  hstack->Draw("hist");
+	TCanvas *c2 = new TCanvas("stack","stack",600,800);
+      c2->cd();
+      
+      TPad* pad2 = new TPad("pad2", "pad2", 0., 0., 1.0, 1.0);
+      pad2->SetLeftMargin(0.20);
+      pad2->SetBottomMargin(0.18);
+      pad2->SetTitle(title);
+      pad2->Draw();
+      pad2->cd();
+      if (drawLog == "logon")
+	pad2->SetLogy();
+      hstack->Draw("hist");
+      
+      hstack -> GetXaxis() -> SetRangeUser(left,right);
+      hstack -> GetYaxis() -> SetTitle(Form("entries / %.1f", histo[0]->GetBinWidth(0)));
+      hstack -> GetYaxis() -> SetTitleOffset(2.0);
+      
+      hstack -> GetXaxis() -> SetTitleSize(0.07);
+      hstack -> GetXaxis() -> SetTitleOffset(0.9);
+      hstack -> GetXaxis() -> SetLabelSize(0.05);
+      hstack -> GetYaxis() -> SetTitleSize(0.05);
+      hstack -> GetYaxis() -> SetLabelSize(0.05);  
+      hstack -> GetXaxis() -> SetTitle(units);
+      hstack -> GetXaxis() -> SetNdivisions(408);
+      hstack -> GetYaxis() -> SetNdivisions(408);
+      
+      hstack -> Draw("hist");
 
-  hstack -> GetXaxis() -> SetRangeUser(left,right);
-  hstack -> GetYaxis() -> SetTitle(Form("entries / %.1f", histo[0]->GetBinWidth(0)));
-  hstack -> GetYaxis() -> SetTitleOffset(2.0);
+      errors -> Draw("same,2");
 
-  hstack -> GetXaxis() -> SetTitleSize(0.07);
-  hstack -> GetXaxis() -> SetTitleOffset(0.9);
-  hstack -> GetXaxis() -> SetLabelSize(0.05);
-  hstack -> GetYaxis() -> SetTitleSize(0.05);
-  hstack -> GetYaxis() -> SetLabelSize(0.05);  
-  hstack -> GetXaxis() -> SetTitle(units);
-  hstack -> GetXaxis() -> SetNdivisions(408);
-  hstack -> GetYaxis() -> SetNdivisions(408);
-
-  hstack -> Draw("hist");
   /*  
   TLegend* leg2 = new TLegend(0.20,0.75,0.70,0.89);
   for (int ip = 0; ip < nProcesses; ++ip)
@@ -192,64 +228,85 @@ void drawPlots(TString variable,
   leg2->SetFillColor(kWhite);
   leg2->SetLineColor(kWhite);
   */
-  leg -> Draw();
+      leg -> Draw();
+      DrawTLatex(0.88, 0.860, 0.04, "CMS preliminary");
+      DrawTLatex(0.88, 0.830, 0.03, "L = 5 fb^{-1}");
+      DrawTLatex(0.88, 0.780, 0.05, Channel);
+      DrawTLatex(0.88, 0.740, 0.04, njets);
 
-  c2 -> Print(variable + "stack." + format, format);
+      pad2->Update();
 
-  for(int ip = 0; ip < nProcesses; ++ip)
-    delete histo[ip];
-  delete c1;
-  delete c2;
-  delete hstack;
+      if (StackMode == "stackon")
+	c2 -> Print(variable + "stack." + format, format);
+      
+      for(int ip = 0; ip < nProcesses; ++ip)
+	delete histo[ip];
+      delete c1;
+      delete c2;
+      delete hstack;
+      
+      if (drawLog == "logoff" && norm == "normoff"){
+	if (StackMode == "stackoff")
+	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "/");
+	else
+	  gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "/");
+      }
+      else if(drawLog == "logon" && norm == "normoff"){
+	if (StackMode == "stackoff")
+	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "Log/");
+	else
+	  gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "Log/");
+      }
+      else if(drawLog == "logoff" && norm == "normon"){
+	if (StackMode == "stackoff")
+	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "Norm/");
+	else
+	gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "Norm/");
+      }
+      else if(drawLog == "logon" && norm == "normon"){
+	if (StackMode == "stackoff")
+	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "NormLog/");
+	else
+	  gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "NormLog/");
+      }
 
-  if (drawLog == "logoff" && norm == "normoff"){
-    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format);
-    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format);
-  }
-  else if(drawLog == "logon" && norm == "normoff"){
-    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "Log");
-    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "Log");
-  }
-  else if(drawLog == "logoff" && norm == "normon"){
-    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "Norm");
-    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "Norm");
-  }
-  else if(drawLog == "logon" && norm == "normon"){
-    gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "NormLog");
-    gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "NormLog");
-  }
+	}
+  
+  //main function
+  void macroHisto(TString printMode = "", 
+		  TString logMode   = "", 
+		  TString normMode  = "",
+		  TString channel   = "",
+		  TString stackMode = ""
+		  ){
 
-}
-
-//main function
-void macroHisto(TString printMode = "", 
-		TString logMode   = "", 
-		TString normMode  = "",
-		TString channel   = ""
-		){
-
-  if(printMode == "" || logMode == "" || normMode == "" || channel == ""){
-    cout<<"************************************************************************"<<endl;
+  if(printMode == "" || logMode == "" || normMode == "" || channel == "" || stackMode == ""){
+    cout<<"******************************************************************************"<<endl;
     cout<<"Please choose a set of options."<<endl;
     cout<<"root -l -b -q 'macroHisto.C(printMode,logMode,normMode,channel)', where:"<<endl;
     cout<<"printMode = 'C', 'png' or 'pdf'"<<endl;
     cout<<"logMode = 'logon' or 'logoff'"<<endl;
     cout<<"normMode = 'normon' or 'normoff'"<<endl;
     cout<<"channel = 'All' or 'OF' or 'SF' or 'MuMu' or 'EE' or 'EMu' or 'MuE'"<<endl;
+    cout<<"stackMode = 'stackon' or 'stackoff'"<<endl;
     cout<<"I suggest, for example:"<<endl;
-    cout<<"root -l -b -q 'macroHisto.C(\"png\",\"logon\",\"normoff\",\"OF\")'"<<endl;
-    cout<<"************************************************************************"<<endl;
+    cout<<"root -l -b -q 'macroHisto.C(\"png\",\"logon\",\"normoff\",\"OF\",\"stackon\")'"<<endl;
+    cout<<"******************************************************************************"<<endl;
     return;
   }
 
   if (printMode == "C" || printMode == "png" || printMode == "pdf"){
     gSystem->Exec("mkdir distributions");
-    gSystem->Exec("mkdir distributions/" + printMode);
-    gSystem->Exec("mkdir distributions/" + printMode + "Norm");
-    gSystem->Exec("mkdir distributions/" + printMode + "Log");
-    gSystem->Exec("mkdir distributions/" + printMode + "NormLog");
+    gSystem->Exec("mkdir distributions/" + channel);
+    if (logMode == "logoff" && normMode == "normoff")
+      gSystem->Exec("mkdir distributions/" + channel + "/" + printMode);
+    else if (logMode == "logoff" && normMode == "normon")
+      gSystem->Exec("mkdir distributions/" + printMode + "Norm");
+    else if (logMode == "logon" && normMode == "normoff")
+      gSystem->Exec("mkdir distributions/" + printMode + "Log");
+    else if (logMode == "logon" && normMode == "normon")
+      gSystem->Exec("mkdir distributions/" + printMode + "NormLog");
   }
-
   else{
     cout<<"please print a valid plot format: 'C', 'png' or 'pdf'"<<endl;
     return;
@@ -270,8 +327,10 @@ void macroHisto(TString printMode = "",
     return;
   }
 
-  gSystem->Exec("mkdir distributions/" + channel);
-  gSystem->Exec("mkdir distributions/" + channel + "/" + printMode);
+  if (stackMode != "stackon" && stackMode != "stackoff"){
+    cout<<"Please select a valid print mode: 'stackon' or 'stackoff'"<<endl;
+    return;
+  }
 
   Int_t cont = 0;
   TString var;
@@ -291,10 +350,25 @@ void macroHisto(TString printMode = "",
     input_.open("out.tmp",std::ios::in);
     input_ >> var >> leftBound >> rightBound >> nbin >> units;
     input_.close();
-    drawPlots(var, leftBound, rightBound, nbin, units, printMode, logMode, normMode, channel);
+    drawPlots(var, leftBound, rightBound, nbin, units, printMode, logMode, normMode, channel, stackMode);
   } 
   
   inFile.close();
   gSystem->Exec("rm out.tmp");
   //  gSystem->Exec("rm outHisto.tmp");
+}
+
+//------------------------------------------------------------------------------
+// DrawTLatex
+//------------------------------------------------------------------------------
+void DrawTLatex(Double_t x, Double_t y, Double_t tsize, const char* text)
+{
+  TLatex* tl = new TLatex(x, y, text);
+
+  tl->SetNDC();
+  tl->SetTextAlign(   32);
+  tl->SetTextFont (   42);
+  tl->SetTextSize (tsize);
+
+  tl->Draw("same");
 }

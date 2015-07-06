@@ -26,10 +26,20 @@
 #include "TROOT.h"
 #include <iostream>
 #include "TSystem.h"
+#include "TLorentzVector.h"
 
 #include "TDatabasePDG.h"
 
 ClassImp(CoreMuonSelector)
+
+float dist(float phi1, float eta1, float phi2, float eta2){
+  float dphi = fabs(phi1 - phi2);
+  float deta = fabs(eta1 - eta2);
+  if (dphi > TMath::Pi())
+    dphi = 2*TMath::Pi() - dphi;
+  return sqrt(dphi*dphi + deta*deta);
+}
+
 
 // Initialise input parameters and data members for all events
 void CoreMuonSelector::Initialise() {
@@ -92,6 +102,8 @@ void CoreMuonSelector::Initialise() {
   hWnJetsBveto           = CreateH1F("hWnJetsBveto",         "", 10, 0, 10);
   hWeffnJetsBveto        = CreateH1F("hWeffnJetsBveto",      "", 10, 0, 10);
   hNjetsTwoLeptonsLevel  = CreateH1F("hNjetsTwoLeptonsLevel",         "", 10, 0, 10);
+  hNjetsPlot1TwoLeptonsLevel  = CreateH1F("hNjetsPlot1TwoLeptonsLevel",         "", 1000, 0, 10);
+  hNjetsPlot2TwoLeptonsLevel  = CreateH1F("hNjetsPlot2TwoLeptonsLevel",         "", 1000, 0, 10);
   hWeffnJetsBvetoAfterHt = CreateH1F("hWeffnJetsBvetoAfterHt",      "", 10, 0, 10);
 
   hWDeltaPhiJet          = CreateH1F("hWDeltaPhiJet", "", 10, 0, 10);
@@ -131,8 +143,6 @@ void CoreMuonSelector::Initialise() {
     hDPhiPtllJetWWLevel[nC]           = CreateH1F(Form("hDPhiPtllJetWWLevel%.1i", nC),           "",   32, 0,  3.2);
     hSigEl[nC]                        = CreateH1F(Form("hSigEl%.1i", nC),                        "", 1000, 0, 1000);
     hSigMu[nC]                        = CreateH1F(Form("hSigMu%.1i", nC),                        "", 1000, 0, 1000);
-
-    cout<<"hola"<<endl;
 
     hPtLepton1WWLevelNoHt[nC]         = CreateH1F(Form("hPtLepton1WWLevelNoHt%.1i", nC),         "", 1000, 0, 1000);
     hPtLepton2WWLevelNoHt[nC]         = CreateH1F(Form("hPtLepton2WWLevelNoHt%.1i", nC),         "", 1000, 0, 1000);
@@ -216,7 +226,12 @@ void CoreMuonSelector::Initialise() {
   std_vector_lepton_photonIso        = new std::vector<float> ();
   std_vector_lepton_neutralHadronIso = new std::vector<float> ();
   std_vector_electron_effectiveArea  = new std::vector<float> ();
-
+  std_vector_lepton_BestTrackdxy     = new std::vector<float> ();
+  std_vector_lepton_BestTrackdz      = new std::vector<float> ();
+  std_vector_lepton_phi              = new std::vector<float> ();
+  std_vector_lepton_eta              = new std::vector<float> ();
+  std_vector_jet_eta                 = new std::vector<float> ();
+  std_vector_jet_phi                 = new std::vector<float> ();
 }
 
 void CoreMuonSelector::InsideLoop() {
@@ -317,6 +332,23 @@ void CoreMuonSelector::InsideLoop() {
   for(int i = 0; i < GetSizeOf("std_vector_lepton_chargedHadronIso"); ++i)
     std_vector_lepton_chargedHadronIso -> push_back( Get<float>("std_vector_lepton_chargedHadronIso",i) );
 
+  for(int i = 0; i < GetSizeOf("std_vector_lepton_BestTrackdxy"); ++i)
+    std_vector_lepton_BestTrackdxy -> push_back( Get<float>("std_vector_lepton_BestTrackdxy",i) );     
+
+  for(int i = 0; i < GetSizeOf("std_vector_lepton_BestTrackdz"); ++i)
+    std_vector_lepton_BestTrackdz -> push_back( Get<float>("std_vector_lepton_BestTrackdz",i) );     
+
+  for(int i = 0; i < GetSizeOf("std_vector_lepton_phi"); ++i)
+    std_vector_lepton_phi -> push_back( Get<float>("std_vector_lepton_phi",i) );     
+
+  for(int i = 0; i < GetSizeOf("std_vector_lepton_eta"); ++i)
+    std_vector_lepton_eta -> push_back( Get<float>("std_vector_lepton_eta",i) );     
+
+  for(int i = 0; i < GetSizeOf("std_vector_jet_eta"); ++i)
+    std_vector_jet_eta -> push_back( Get<float>("std_vector_jet_eta",i) );     
+
+  for(int i = 0; i < GetSizeOf("std_vector_jet_phi"); ++i)
+    std_vector_jet_phi -> push_back( Get<float>("std_vector_jet_phi",i) );     
 
   //Assigning values to float variables
   //----------------------------------------------------------------------------
@@ -386,7 +418,9 @@ void CoreMuonSelector::InsideLoop() {
 
    Float_t metvar = (njet <= 1) ? mpmet : pfType1Met;
   
-   Float_t Ht = std_vector_lepton_pt->at(0) + std_vector_lepton_pt->at(1) + pfType1Met;
+   //building Ht
+   Float_t Ht = 0.;
+   Ht = std_vector_lepton_pt->at(0) + std_vector_lepton_pt->at(1) + pfType1Met;
    
    if(njet > 10) njet = 10;
    for (int i = 0; i < njet; ++i)
@@ -399,6 +433,37 @@ void CoreMuonSelector::InsideLoop() {
      if(std_vector_lepton_pt -> at(i) > 10)
        ++nextra;
    nextra = nextra -2;
+   
+   //building dRjet1
+   Float_t dRjet1  = 100.;
+   TLorentzVector vjet1(0.,0.,0.,0.);
+   TLorentzVector vlep1(0.,0.,0.,0.);
+   if(std_vector_lepton_pt->at(0) > 0.){
+     vlep1.SetPtEtaPhiM(std_vector_lepton_pt->at(0),std_vector_lepton_eta->at(0),std_vector_lepton_phi->at(0),0.);
+     for (int i = 0; i < std_vector_jet_pt -> size(); ++i)
+       if(std_vector_jet_pt -> at(i) > 0.){
+	 vjet1.SetPtEtaPhiM(std_vector_jet_pt->at(i),std_vector_jet_eta->at(i),std_vector_jet_phi->at(i),0.);
+	 //cout<<i<<":"<<vlep1.DeltaR(vjet1)<<","<<dist(std_vector_lepton_phi->at(0),std_vector_lepton_eta->at(0),std_vector_jet_phi->at(i),std_vector_jet_eta->at(i))<<endl;
+	 if( vlep1.DeltaR(vjet1) < dRjet1){
+	   dRjet1 = vlep1.DeltaR(vjet1);
+	 }
+       }
+   }
+
+   //building dRjet2
+   Float_t dRjet2  = 100.;
+   TLorentzVector vjet2(0.,0.,0.,0.);
+   TLorentzVector vlep2(0.,0.,0.,0.);
+   if(std_vector_lepton_pt->at(1) > 0.){
+     vlep2.SetPtEtaPhiM(std_vector_lepton_pt->at(1),std_vector_lepton_phi->at(1),std_vector_lepton_eta->at(1),0.);
+     for (int i = 0; i < njet; ++i)
+       if(std_vector_jet_pt -> at(i) > 0.){
+	 vjet2.SetPtEtaPhiM(std_vector_jet_pt->at(i),std_vector_jet_eta->at(i),std_vector_jet_phi->at(i),0.);
+	 if( vlep2.DeltaR(vjet2) < dRjet2){
+	   dRjet2 = vlep2.DeltaR(vjet2);
+	 }
+       }
+   }
    
    // The selection begins here
    //--------------------------------------------------------------------------
@@ -441,9 +506,10 @@ void CoreMuonSelector::InsideLoop() {
 	       hDeltaPhiLeptonsTwoLeptonsLevel->Fill(dphill,     totalW);
 	       hDPhiPtllJetTwoLeptonsLevel    ->Fill(dphilljet,  totalW);
 	       hNjetsTwoLeptonsLevel          ->Fill(njet,       totalW);
+	       hNjetsPlot1TwoLeptonsLevel     ->Fill(dRjet1,     totalW);
+	       hNjetsPlot2TwoLeptonsLevel     ->Fill(dRjet2,     totalW);
 	       hSigMuNoHtTwoLeptonsLevel      ->Fill(std_vector_lepton_muSIP3D->at(0),totalW);
 	       hSigElNoHtTwoLeptonsLevel      ->Fill(std_vector_lepton_elSIP3D->at(0),totalW);
-
 
 	       if (nextra == 0) {
 		 
@@ -461,10 +527,11 @@ void CoreMuonSelector::InsideLoop() {
 		     hWeffLowMinv->Fill(1, efficiencyW);
 			       
 		     //zveto (in case of same flavour)
-		     if ( fabs(ZMASS - mll) > 15 || 
-			  channel == 0           ||
-			  channel == 1           ){
-		       
+		     if ( (fabs(ZMASS - mll) > 15 && 
+			   ( metvar > 45 ) )      ||
+			  channel == 0            ||
+			  channel == 1            ){
+			    
 		       hWZVeto->Fill(1, totalW);
 		       hWeffZVeto->Fill(1, efficiencyW);
 		       
@@ -713,6 +780,8 @@ void CoreMuonSelector::Summary() {
   hWnJetsBveto           = FindOutput<TH1F*>("hWnJetsBveto");
   hWeffnJetsBveto        = FindOutput<TH1F*>("hWeffnJetsBveto");
   hNjetsTwoLeptonsLevel  = FindOutput<TH1F*>("hNjetsTwoLeptonsLevel");
+  hNjetsPlot1TwoLeptonsLevel  = FindOutput<TH1F*>("hNjetsPlot1TwoLeptonsLevel");
+  hNjetsPlot2TwoLeptonsLevel  = FindOutput<TH1F*>("hNjetsPlot2TwoLeptonsLevel");
   hWnJetsBvetoAfterHt    = FindOutput<TH1F*>("hWnJetsBvetoAfterHt");
 
   hWDeltaPhiJet = FindOutput<TH1F*>("hWDeltaPhiJet");
@@ -849,15 +918,18 @@ bool CoreMuonSelector::IsTightLepton(int k)
   bool is_tight_lepton = false;
 
   // Muon tight ID
-  if (fabs(std_vector_lepton_id->at(k)) == 13)
-    {
-      is_tight_lepton = std_vector_lepton_isTightMuon->at(k);
-    }
+  if (fabs(std_vector_lepton_id->at(k)) == 13){
+    if (std_vector_lepton_isTightMuon->at(k) == 1)
+      if (fabs(std_vector_lepton_BestTrackdxy -> at(k)) < 0.02)
+	if (fabs(std_vector_lepton_BestTrackdz -> at(k)) < 0.1)
+	  is_tight_lepton = true;
+  }
+  
   // Electron cut based medium ID
   else if (fabs(std_vector_lepton_id->at(k)) == 11)
     {
       float aeta = fabs(std_vector_electron_scEta->at(k));
-
+      
       if (aeta <= 1.479)
 	{
 	  if (fabs(std_vector_electron_deltaEtaIn->at(k)) < 0.008925 &&
