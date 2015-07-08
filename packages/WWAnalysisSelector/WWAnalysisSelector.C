@@ -77,11 +77,48 @@ void WWAnalysisSelector::Initialise() {
   
   else if (_FlavorChannel == "All" ) SelectedChannel = -1;
  
-//------------------------------------------------------------------------------
-// Create histos
-//------------------------------------------------------------------------------
- 
 
+  //------------------------------------------------------------------------------
+  // Create tree and branches
+  //------------------------------------------------------------------------------
+  
+  tree = CreateTree("nt","nt");
+  
+  tree->Branch("pt1",&pt1,"pt1");
+  tree->Branch("pt2",&pt2,"pt2");
+  tree->Branch("pfType1Met",&pfType1Met,"pfType1Met");
+  tree->Branch("trkMet",&trkMet,"trkMet");
+  tree->Branch("jetpt1",&jetpt1,"jetpt1");
+  tree->Branch("ptll",&ptll,"ptll");
+  tree->Branch("dphill",&dphill,"dphill");
+  tree->Branch("jetphi1",&jetphi1,"jetphi1");
+  tree->Branch("pfType1Metphi",&pfType1Metphi,"pfType1Metphi");
+  tree->Branch("mth",&mth,"mth");
+  tree->Branch("mll",&mll,"mll");
+  tree->Branch("mpmet",&mpmet,"mpmet");
+  tree->Branch("metvar",&metvar,"metvar");
+  tree->Branch("dphilljet",&dphilljet,"dphilljet");
+  tree->Branch("dphillmet",&dphillmet,"dphillmet");
+  tree->Branch("njet",&njet,"njet");
+  tree->Branch("dphilmet1",&dphilmet1,"dphilmet1");
+  tree->Branch("dphilmet2",&dphilmet2,"dphilmet2");
+  tree->Branch("bveto_ip",&bveto_ip,"bveto_ip");
+  tree->Branch("nbjettche",&nbjettche,"nbjettche");
+  tree->Branch("dphiv",&dphiv,"dphiv");
+  tree->Branch("dphijet1met",&dphijet1met,"dphijet1met");
+  tree->Branch("ratioMet",&ratioMet,"ratioMet");
+
+  tree->Branch("nvtx",&nvtx,"nvtx");
+  tree->Branch("nextra",&nextra,"nextra");
+
+  tree->Branch("std_vector_lepton_pt",&std_vector_lepton_pt,"std_vector_lepton_pt");
+  tree->Branch("std_vector_jet_pt",&std_vector_jet_pt,"std_vector_jet_pt");
+
+
+  //------------------------------------------------------------------------------
+  // Create histos
+  //------------------------------------------------------------------------------
+  
   h_N_PV  = CreateH1F ("h_N_PV","h_N_PV",50,0,50); 
   h_N_PV->TH1::SetDefaultSumw2();
 
@@ -377,10 +414,14 @@ void WWAnalysisSelector::InsideLoop() {
   Assign("njet",njet);
   Assign("nbjet",nbjet);
   Assign("nbjettche",nbjettche);
-  
+  Assign("jetpt1",jetpt1);
+  Assign("jetphi1",jetphi1);
+  Assign("pfType1Metphi",pfType1Metphi);
+  Assign("dphillmet",dphillmet);
+
   //Assigning values to integer variables
   //----------------------------------------------------------------------------
-
+  Assign("nvtx",nvtx);
   Assign("bveto_ip",bveto_ip);
   Assign("bveto_mu",bveto_mu);
 
@@ -395,7 +436,7 @@ void WWAnalysisSelector::InsideLoop() {
   
   h_N_PV -> Fill(1,efficiencyW);  
   
-  Int_t dphiv = (njet <= 1 || (njet > 1 && dphilljetjet < 165.*TMath::DegToRad()));
+  dphiv = (njet <= 1 || (njet > 1 && dphilljetjet < 165.*TMath::DegToRad()));
   
   int jetbin = njet;
   
@@ -413,9 +454,9 @@ void WWAnalysisSelector::InsideLoop() {
   else
     trkpmet = trkMet;
   
-   Float_t mpmet = min(trkpmet,fullpmet);
+   mpmet = min(trkpmet,fullpmet);
 
-   Float_t metvar = (njet <= 1) ? mpmet : pfType1Met;
+   metvar = (njet <= 1) ? mpmet : pfType1Met;
   
    //building Ht
    Float_t Ht = 0.;
@@ -464,6 +505,19 @@ void WWAnalysisSelector::InsideLoop() {
        }
    }
    
+   //Building dphijet1met
+   dphijet1met = 0.;
+   if (jetphi1 > 0 && pfType1Metphi > 0){
+     dphijet1met = fabs(jetphi1 - pfType1Metphi);
+     if (dphijet1met > TMath::Pi()) dphijet1met = 2*TMath::Pi() - dphijet1met;
+   }
+
+   //Building RatioMet   
+   ratioMet = 0.;
+   if (pfType1Met > 0 && trkMet > 0)
+     ratioMet = pfType1Met / sqrt(pfType1Met + trkMet);
+
+
    // The selection begins here
    //--------------------------------------------------------------------------
    if (std_vector_lepton_pt->at(0) > 20)
@@ -485,6 +539,7 @@ void WWAnalysisSelector::InsideLoop() {
 	       if (IsTightLepton(0))
 		 if (IsTightLepton(1)){
 	       
+		   tree->Fill();
 	       //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	       //
 	       // Main analisis
@@ -757,7 +812,7 @@ void WWAnalysisSelector::Summary() {
   // Get Data Members at the client-master (after finishing the analysis at the workers nodes)
   // Only data members set here will be accesible at the client-master
 
-
+  tree = FindOutput<TTree*>("nt");
   ///*** 1D histos ***/// 
 
   h_N_PV  = FindOutput<TH1F*>("h_N_PV");  

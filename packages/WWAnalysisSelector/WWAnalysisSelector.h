@@ -105,16 +105,27 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   float njet;
   float nbjet;
   float nbjettche;
+  float jetpt1;
+  float jetphi1;
+  float pfType1Metphi;
+  float dphillmet;
+  float mpmet;
+  float metvar;
+  float dphijet1met;
+  float ratioMet;
 
+  int   dphiv;
+  int   nvtx;
   int   nextra;
   int   bveto_ip;
   int   bveto_mu;
 
   // VARIABLES FOR ALL EVENTS (to be initialized only once)
 
+  TTree *tree;
  
    // Histograms 
-  TH1F                        *h_N_PV;
+  TH1F *h_N_PV;
   
   // Counting histograms                                                                  
   //-------------------------------------------------------------------------
