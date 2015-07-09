@@ -10,11 +10,15 @@ LUMINOSITY=5.
 
 NJETS=$1
 
-CHANNELS="All SF OF EE MuE EMu MuMu "
+CHANNELS="OF"
+#All SF EE MuE EMu MuMu "
 
-PROOFMODE="Sequential"
+PROOFMODE="Cluster"
 
 SAMESIGN="OS" 
+
+MUONIDS="MediumIDTighterIP"
+#MediumID TightID TightIDTighterIP"
 
 SAMPLES="
 WW50                \
@@ -35,11 +39,16 @@ mkdir rootFiles
 for CHANNEL in $CHANNELS; do
 
     for SAMPLE in $SAMPLES; do 
+
+	for MUONID in $MUONIDS; do 
 	
-	mkdir rootFiles/
-	mkdir rootFiles/${CHANNEL}	
-	root -l -b -q "RunMuonAnalyzer.C(\"$SAMPLE\",\"$CHANNEL\",\"$SAMESIGN\",\"$PROOFMODE\",$LUMINOSITY)"
-  
+	    mkdir rootFiles/
+	    mkdir rootFiles/${CHANNEL}	
+	    mkdir rootFiles/${CHANNEL}/${MUONID}	
+	    root -l -b -q "RunMuonAnalyzer.C(\"$SAMPLE\",\"$CHANNEL\",\"$SAMESIGN\",\"$PROOFMODE\",$LUMINOSITY,\"$MUONID\")"
+	    
+	done
+	
     done
 
 done

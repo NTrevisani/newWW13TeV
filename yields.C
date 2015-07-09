@@ -60,18 +60,22 @@ cutHisto[7] = "hWPtll";
 cutHisto[8] = "hWTopTagging";
 cutHisto[9] = "hDeltaPhiLeptonsWWLevel3";
 
-void yields(TString flavourChannel = ""){
+void yields(TString flavourChannel = "",
+	    TString muonID         = ""
+	    ){
 
+  if( muonID != "MediumID" && muonID != "TightID" && muonID != "TightIDTighterIP")  
   if (flavourChannel != "All" && flavourChannel !=  "OF" && flavourChannel !=  "SF" && flavourChannel !=  "MuMu" && flavourChannel !=  "EE" && flavourChannel !=  "EMu" && flavourChannel !=  "MuE"){
 
-    cout<<"***********************************************************************************************************"<<endl;
-    cout<<"Please select a valid flavour channel to look at: 'All' or 'OF' or 'SF' or 'MuMu' or 'EE' or 'EMu' or 'MuE'"<<endl;
-    cout<<"For example: root -l -q 'yields.C(\"OF\")'"<<endl;
-    cout<<"***********************************************************************************************************"<<endl;
+    cout<<"**************************************************************************************************************"<<endl;
+    cout<<"Please select a valid flavour channel to look at: 'All' or 'OF' or 'SF' or 'MuMu' or 'EE' or 'EMu' or 'MuE'..."<<endl;
+    cout<<"...And a valid muonID: 'MediumID', 'TightID' or 'TightIDTighterIP'"<<endl;
+    cout<<"For example: root -l -q 'yields.C(\"OF\",\"TightIDTighterIP\")'"<<endl;
+    cout<<"**************************************************************************************************************"<<endl;
     return;
   }
 
-  TString path = "rootFiles/" + flavourChannel + "/";
+  TString path = "rootFiles/" + flavourChannel + "/" + muonID + "/";
   
   inFile<<"\\begin{tabular}{cSSSS}"<<endl;
   cout<<"\\begin{tabular}{cSSSS}"<<endl;
@@ -124,5 +128,5 @@ void yields(TString flavourChannel = ""){
   cout<<"\\end{tabular}"<<endl;
   inFile.close();
 
-  gSystem -> Exec("mv yields.txt distributions/" + flavourChannel );
+  gSystem -> Exec("mv yields.txt distributions/" + flavourChannel + "/" + muonID);
 }

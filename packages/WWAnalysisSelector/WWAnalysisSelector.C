@@ -54,6 +54,7 @@ void WWAnalysisSelector::Initialise() {
   _SameSign        = GetParam<TString>("SameSign"); 
   _FlavorChannel   = GetParam<TString>("FlavorChannel");
   _outPath         = GetParam<TString>("OutPath");
+  _MuonID          = GetParam<TString>("MuonID");
 
   gSystem -> Exec("mkdir " + _outPath);
 
@@ -268,6 +269,7 @@ void WWAnalysisSelector::Initialise() {
   std_vector_lepton_eta              = new std::vector<float> ();
   std_vector_jet_eta                 = new std::vector<float> ();
   std_vector_jet_phi                 = new std::vector<float> ();
+  std_vector_lepton_isMediumMuon     = new std::vector<float> ();
 }
 
 void WWAnalysisSelector::InsideLoop() {
@@ -385,6 +387,9 @@ void WWAnalysisSelector::InsideLoop() {
 
   for(int i = 0; i < GetSizeOf("std_vector_jet_phi"); ++i)
     std_vector_jet_phi -> push_back( Get<float>("std_vector_jet_phi",i) );     
+
+  for(int i = 0; i < GetSizeOf("std_vector_lepton_isMediumMuon"); ++i)
+    std_vector_lepton_isMediumMuon -> push_back( Get<float>("std_vector_lepton_isMediumMuon",i) );
 
   //Assigning values to float variables
   //----------------------------------------------------------------------------
@@ -583,8 +588,8 @@ void WWAnalysisSelector::InsideLoop() {
 		     //zveto (in case of same flavour)
 		     if ( (fabs(ZMASS - mll) > 15 && 
 			   ( metvar > 45 ) )      ||
-			  channel == 0            ||
-			  channel == 1            ){
+			  channel == 2            ||
+			  channel == 3            ){
 			    
 		       hWZVeto->Fill(1, totalW);
 		       hWeffZVeto->Fill(1, efficiencyW);
@@ -624,7 +629,8 @@ void WWAnalysisSelector::InsideLoop() {
 			       
 			       hWTopTagging->Fill(1, totalW);
 			       hWeffTopTagging->Fill(1, efficiencyW);
-			       
+			       hHt[2]->Fill(Ht,totalW);			       
+
 			       //b-veto (now not operative)
 			       /*if (bveto_mu == 1) */{
 				 
@@ -649,7 +655,7 @@ void WWAnalysisSelector::InsideLoop() {
 				 hSigElNoHt[3]                 ->Fill(std_vector_lepton_elSIP3D->at(0),totalW);
 
 				 //bveto Ht 
-				 if(Ht < 250){
+				 if(Ht < 218){
 				   hPtLepton1WWLevel[3]      ->Fill(pt1,       totalW);
 				   hPtLepton2WWLevel[3]      ->Fill(pt2,       totalW);
 				   hPtDiLeptonWWLevel[3]     ->Fill(ptll,      totalW);
@@ -666,7 +672,7 @@ void WWAnalysisSelector::InsideLoop() {
 				 }
 				 
 				 //bveto Ht 
-				 if(Ht > 250){
+				 if(Ht > 218){
 				   
 				   hPtLepton1WWLevelHtPlus[3]      ->Fill(pt1,       totalW);
 				   hPtLepton2WWLevelHtPlus[3]      ->Fill(pt2,       totalW);
@@ -701,7 +707,7 @@ void WWAnalysisSelector::InsideLoop() {
 				     hSigElNoHt[jetNumber]                 ->Fill(std_vector_lepton_elSIP3D->at(0),totalW);
 				     
 				     //bveto Ht  
-				     if(Ht < 250){
+				     if(Ht < 218){
 				       
 				       hPtLepton1WWLevel[jetNumber]      ->Fill(pt1,       totalW);
 				       hPtLepton2WWLevel[jetNumber]      ->Fill(pt2,       totalW);
@@ -718,7 +724,7 @@ void WWAnalysisSelector::InsideLoop() {
 				     }
 				     
 				     //bveto Ht  
-				     if(Ht > 250){
+				     if(Ht > 218){
 				       
 				       hPtLepton1WWLevelHtPlus[jetNumber]      ->Fill(pt1,       totalW);
 				       hPtLepton2WWLevelHtPlus[jetNumber]      ->Fill(pt2,       totalW);
@@ -971,12 +977,33 @@ bool WWAnalysisSelector::IsTightLepton(int k)
 {
   bool is_tight_lepton = false;
 
-  // Muon tight ID
+  // Muon ID
   if (fabs(std_vector_lepton_id->at(k)) == 13){
-    if (std_vector_lepton_isTightMuon->at(k) == 1)
-      if (fabs(std_vector_lepton_BestTrackdxy -> at(k)) < 0.02)
-	if (fabs(std_vector_lepton_BestTrackdz -> at(k)) < 0.1)
-	  is_tight_lepton = true;
+
+    if (_MuonID.Contains("MediumID")){
+      if (std_vector_lepton_isMediumMuon->at(k) == 1){
+	is_tight_lepton = true;
+	if(_MuonID == "MediumIDTighterIP"){
+	  is_tight_lepton = false;
+	  if (fabs(std_vector_lepton_BestTrackdxy -> at(k)) < 0.02)
+	    if (fabs(std_vector_lepton_BestTrackdz -> at(k)) < 0.1)
+	      is_tight_lepton = true;
+	}
+      }
+    }
+    
+    else if (_MuonID.Contains("TightID") ){
+      if (std_vector_lepton_isTightMuon->at(k) == 1){
+	is_tight_lepton = true;
+	if(_MuonID == "TightIDTighterIP"){
+	  is_tight_lepton = false;
+	  if (fabs(std_vector_lepton_BestTrackdxy -> at(k)) < 0.02)
+	    if (fabs(std_vector_lepton_BestTrackdz -> at(k)) < 0.1)
+	      is_tight_lepton = true;
+	}
+      }
+    }
+
   }
   
   // Electron cut based medium ID

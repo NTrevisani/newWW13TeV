@@ -79,6 +79,7 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   std::vector<float> *std_vector_electron_effectiveArea;
   std::vector<float> *std_vector_lepton_BestTrackdxy;
   std::vector<float> *std_vector_lepton_BestTrackdz;
+  std::vector<float> *std_vector_lepton_isMediumMuon;
 
   float jetRho;
   float puW;
@@ -240,6 +241,7 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   TString                     _SameSign;             // Choose the type of events looking at the lepton's charge
   TString                     _FlavorChannel;        // Choose the type of events looking at the lepton's charge
   TString                     _outPath;              // Output folder
+  TString                     _MuonID;               // ID requirement to consider a muon
 
   // Weights
   float                       _factN;                // Normalization factor
@@ -339,7 +341,8 @@ class WWAnalysisSelector: public PAFChainItemSelector{
     _WhichRun(),
     _Debug(),
     _Report(),
-    _factN()
+    _factN(),
+    _MuonID()
       { }
   
   ClassDef(WWAnalysisSelector,0);

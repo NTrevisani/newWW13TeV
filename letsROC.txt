@@ -1,1 +1,2 @@
-hHt3					<	3000	H_T[GeV]
+hHt2					<	1000	H_T[GeV]
+hHt3					<	1000	H_T[GeV]

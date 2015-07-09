@@ -48,12 +48,13 @@ void drawPlots(TString variable,
 	       TString drawLog,
 	       TString norm,
 	       TString Channel,
-	       TString StackMode
+	       TString StackMode,
+	       TString muonID
 	       ){
 
   Float_t rangeY = 0.;
 
-  TString path = "rootFiles/" + Channel + "/";
+  TString path = "rootFiles/" + Channel + "/" + muonID + "/";
 
   for (int ip = 0; ip < nProcesses; ++ip){
     TString fileName = path + process[ip] + ".root";
@@ -247,27 +248,27 @@ void drawPlots(TString variable,
       
       if (drawLog == "logoff" && norm == "normoff"){
 	if (StackMode == "stackoff")
-	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "/");
+	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "/");
 	else
-	  gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "/");
+	  gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "/");
       }
       else if(drawLog == "logon" && norm == "normoff"){
 	if (StackMode == "stackoff")
-	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "Log/");
+	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "Log/");
 	else
-	  gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "Log/");
+	  gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "Log/");
       }
       else if(drawLog == "logoff" && norm == "normon"){
 	if (StackMode == "stackoff")
-	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "Norm/");
+	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "Norm/");
 	else
-	gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "Norm/");
+	gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "Norm/");
       }
       else if(drawLog == "logon" && norm == "normon"){
 	if (StackMode == "stackoff")
-	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + format + "NormLog/");
+	  gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "NormLog/");
 	else
-	  gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + format + "NormLog/");
+	  gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "NormLog/");
       }
 
 	}
@@ -277,11 +278,12 @@ void drawPlots(TString variable,
 		  TString logMode   = "", 
 		  TString normMode  = "",
 		  TString channel   = "",
-		  TString stackMode = ""
+		  TString stackMode = "",
+		  TString MuonID    = ""
 		  ){
 
-  if(printMode == "" || logMode == "" || normMode == "" || channel == "" || stackMode == ""){
-    cout<<"******************************************************************************"<<endl;
+  if(printMode == "" || logMode == "" || normMode == "" || channel == "" || stackMode == "" || MuonID == ""){
+    cout<<"****************************************************************************************************"<<endl;
     cout<<"Please choose a set of options."<<endl;
     cout<<"root -l -b -q 'macroHisto.C(printMode,logMode,normMode,channel)', where:"<<endl;
     cout<<"printMode = 'C', 'png' or 'pdf'"<<endl;
@@ -289,23 +291,25 @@ void drawPlots(TString variable,
     cout<<"normMode = 'normon' or 'normoff'"<<endl;
     cout<<"channel = 'All' or 'OF' or 'SF' or 'MuMu' or 'EE' or 'EMu' or 'MuE'"<<endl;
     cout<<"stackMode = 'stackon' or 'stackoff'"<<endl;
+    cout<<"MuonID = 'MediumID' or 'MediumIDTighterIP' or 'TightID' or 'TightIDTighterIP'"<<endl;
     cout<<"I suggest, for example:"<<endl;
-    cout<<"root -l -b -q 'macroHisto.C(\"png\",\"logon\",\"normoff\",\"OF\",\"stackon\")'"<<endl;
-    cout<<"******************************************************************************"<<endl;
+    cout<<"root -l -b -q 'macroHisto.C(\"pdf\",\"logoff\",\"normoff\",\"OF\",\"stackon\",\"TightIDTighterIP\")'"<<endl;
+    cout<<"****************************************************************************************************"<<endl;
     return;
   }
 
   if (printMode == "C" || printMode == "png" || printMode == "pdf"){
     gSystem->Exec("mkdir distributions");
     gSystem->Exec("mkdir distributions/" + channel);
+    gSystem->Exec("mkdir distributions/" + channel + "/" + MuonID);
     if (logMode == "logoff" && normMode == "normoff")
-      gSystem->Exec("mkdir distributions/" + channel + "/" + printMode);
+      gSystem->Exec("mkdir distributions/"  + channel + "/" + MuonID + "/" + printMode);
     else if (logMode == "logoff" && normMode == "normon")
-      gSystem->Exec("mkdir distributions/" + printMode + "Norm");
+      gSystem->Exec("mkdir distributions/"  + channel + "/" + MuonID + "/"  + printMode + "Norm");
     else if (logMode == "logon" && normMode == "normoff")
-      gSystem->Exec("mkdir distributions/" + printMode + "Log");
+      gSystem->Exec("mkdir distributions/"  + channel + "/" + MuonID + "/"  + printMode + "Log");
     else if (logMode == "logon" && normMode == "normon")
-      gSystem->Exec("mkdir distributions/" + printMode + "NormLog");
+      gSystem->Exec("mkdir distributions/"  + channel + "/" + MuonID + "/"  + printMode + "NormLog");
   }
   else{
     cout<<"please print a valid plot format: 'C', 'png' or 'pdf'"<<endl;
@@ -332,6 +336,11 @@ void drawPlots(TString variable,
     return;
   }
 
+  if (MuonID != "MediumID" && MuonID != "TightID" && MuonID != "TightIDTighterIP" && MuonID != "MediumIDTighterIP"){
+    cout<<"Please select the muon ID plots you want to draw"<<endl;
+    return;
+}
+
   Int_t cont = 0;
   TString var;
   Float_t leftBound = 0;
@@ -350,7 +359,7 @@ void drawPlots(TString variable,
     input_.open("out.tmp",std::ios::in);
     input_ >> var >> leftBound >> rightBound >> nbin >> units;
     input_.close();
-    drawPlots(var, leftBound, rightBound, nbin, units, printMode, logMode, normMode, channel, stackMode);
+    drawPlots(var, leftBound, rightBound, nbin, units, printMode, logMode, normMode, channel, stackMode, MuonID);
   } 
   
   inFile.close();

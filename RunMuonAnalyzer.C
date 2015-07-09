@@ -17,7 +17,8 @@ void RunMuonAnalyzer(TString data,
 		     TString flavorChannel,
 		     TString sameSign,
 		     TString PAFMode,
-		     Float_t luminosity  //In pb-1
+		     Float_t luminosity,  //In fb-1
+		     TString muonID
 		     ) {
  
   gSystem->Load("libPAF.so");   
@@ -26,7 +27,7 @@ void RunMuonAnalyzer(TString data,
   TString path50      = "/gpfs/csic_projects/cms/trevisanin/newLatino/50ns/";
   TString pathOld     = "/gpfs/csic_projects/cms/trevisanin/newLatino/";
 
-  TString outPath     = "rootFiles/" + flavorChannel + "/";
+  TString outPath     = "rootFiles/" + flavorChannel + "/" + muonID + "/";
 
   gSystem -> Exec("mkdir rootFiles");
   gSystem -> Exec("mkdir rootFiles/" + flavorChannel);
@@ -141,6 +142,7 @@ void RunMuonAnalyzer(TString data,
   myProject->SetInputParam("FlavorChannel", flavorChannel);
   myProject->SetInputParam("SameSign",      sameSign);
   myProject->SetInputParam("OutPath",       outPath);
+  myProject->SetInputParam("MuonID",        muonID);
 
   ///////////////////////////////
   // OUTPUT FILE NAME

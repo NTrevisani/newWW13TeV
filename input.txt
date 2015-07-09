@@ -1,3 +1,4 @@
+hHtAfter3				0.	1000.	5	H_T[GeV]
 hNjetsTwoLeptonsLevel			0.	10.	1	njets
 hPtLepton1TwoLeptonsLevel		0.	300.    10      p_{T}^{lep1}[GeV]
 hPtLepton2TwoLeptonsLevel           	0.      150.    10      p_{T}^{lep2}[GeV]
@@ -26,7 +27,7 @@ hpminMetWWLevel3        	    	0.	     600.  10	   mpMET[GeV]
 hDeltaRLeptonsWWLevel3  	    	0.	     4.	    1	   #DeltaR_{ll}
 hDeltaPhiLeptonsWWLevel3	  	0.	     3.14   1	   #Delta#phi_{ll}
 hDPhiPtllJetWWLevel3    	    	0.	     3.14   1	   #Delta#phi_{lljet}
-hHtWWLevel3			    	0.	    1000.   40	   Ht[GeV]
+hHtWWLevel3			    	0.	    1000.   40	   H_T[GeV]
 hTrkMetWWLevel3                     	0.       600.   20      TrkMet[GeV]	
 hSigMu3				    	0.	     1000.  1.	    MuonSignificance
 hSigEl3				    	0.	     1000.  1.	    ElectronSignificance	
@@ -43,7 +44,7 @@ hDeltaRLeptonsWWLevel2  	    0.	     4.	    1	   #DeltaR_{ll}
 hDeltaPhiLeptonsWWLevel2	    0.	     3.14   1	   #Delta#phi_{ll}
 hDPhiPtllJetWWLevel2    	    0.	     3.14   1	   #Delta#phi_{lljet}
 hTrkMetWWLevel2                     0.     1000.   20      TrkMet[GeV]	
-hHtWWLevel2			    0.	   1000.   40	   Ht[GeV]
+hHtWWLevel2			    0.	   1000.   40	   H_T[GeV]
 hPtLepton1WWLevel1      	    0.	     300.  10	   p_{T}^{lep1}[GeV]
 hPtLepton2WWLevel1      	    0.	     150.  10	   p_{T}^{lep2}[GeV]
 hPtDiLeptonWWLevel1     	    0.	     500.  10	   p_{T}^{ll}[GeV]
@@ -58,7 +59,7 @@ hDeltaPhiLeptonsWWLevel1	    0.	     3.14   1	   #Delta#phi_{ll}
 hDPhiPtllJetWWLevel1    	    0.	     3.14   1	   #Delta#phi_{lljet}
 hTrkMetWWLevel1                     0.      600.   20      TrkMet[GeV]	
 hMcWWLevel1			    0.      500.   10      Mc[GeV]
-hHtWWLevel1			    0.	   1000.   40	   Ht[GeV]
+hHtWWLevel1			    0.	   1000.   40	   H_T[GeV]
 hPtLepton1WWLevel0      	    0.	     300.  10	   p_{T}^{lep1}[GeV]
 hPtLepton2WWLevel0      	    0.	     150.  10	   p_{T}^{lep2}[GeV]
 hPtDiLeptonWWLevel0     	    0.	     500.  10	   p_{T}^{ll}[GeV]
@@ -72,5 +73,5 @@ hDeltaRLeptonsWWLevel0  	    0.	     4.	    1	   #DeltaR_{ll}
 hDeltaPhiLeptonsWWLevel0	    0.	     3.14   1	   #Delta#phi_{ll}
 hDPhiPtllJetWWLevel0    	    0.	     3.14   1	   #Delta#phi_{lljet}
 hTrkMetWWLevel0                     0.      600.   20      TrkMet[GeV]	
-hHtWWLevel0			    0.	    600.   40	   Ht[GeV]
-hHt3				    0.	    1000.  5	   Ht[GeV]
+hHtWWLevel0			    0.	    600.   40	   H_T[GeV]
+hHt3				    0.	    1000.  5	   H_T[GeV]

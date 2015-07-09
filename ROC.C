@@ -1,5 +1,5 @@
 /*
-root -l -b -q 'ROC.C("png","Dark1","1")'
+root -l -b -q 'ROC.C("png","WW50")'
 */
 
 #include "TROOT.h"
@@ -17,6 +17,34 @@ root -l -b -q 'ROC.C("png","Dark1","1")'
 #include <string>
 
 const int nBkg = 2;
+const int nSig = 1;
+
+//signal files
+TFile *fSig[nSig]; 
+
+//defining signal names
+TString sigName[nSig];
+sigName[0] = "WW50";
+
+//defining signal histogram
+TH1F *hSig[nSig];
+
+//defining background names
+TString bkgName[nBkg];
+bkgName[0] = "TTbar50"; 
+bkgName[1] = "WJets50";  
+
+//background files
+TFile *fBkg[nBkg];
+
+//defining background histograms
+TH1F *hBkg[nBkg];
+
+//defining graphs
+TGraph *g  = new TGraph();
+TGraph *g2 = new TGraph();
+TGraph *g3 = new TGraph();
+TGraph *g4 = new TGraph();
 
 //file where I'll put the cut values for each variable
 std::ofstream cutFile("info.txt",std::ios::out);
@@ -83,21 +111,15 @@ float FitBestY(TGraph* grafico, int end){
   return max;
 }
 
-int doTheROC(TString variable = "hHt3", 
-	     TString sampleName = "WW50", 
-	     TString typeOfCut = ">",
-	     Float_t max = 3000,
-	     TString printFormat = "pdf",
-	     TString text = "Tracker MET [GeV]"
+int doTheROC(TString variable = "", 
+	     TString typeOfCut = "",
+	     TString max_ = "",
+	     TString printFormat = "",
+	     TString text = ""
 	     ){
 
-  gSystem->Exec("mkdir orthogonalCuts");
-  gSystem->Exec("mkdir orthogonalCuts/" + sampleName);
-  gSystem->Exec("mkdir orthogonalCuts/" + sampleName + "/" + printFormat);
-  gSystem->Exec("mkdir orthogonalCuts/" + sampleName + "/" + printFormat + "/NoCut");
-  gSystem->Exec("mkdir orthogonalCuts/" + sampleName + "/" + printFormat + "/FirstCut");
-  gSystem->Exec("mkdir orthogonalCuts/" + sampleName + "/" + printFormat + "/SecondCut");
-  gSystem->Exec("mkdir orthogonalCuts/" + sampleName + "/" + printFormat + "/ThirdCut");
+  gSystem->Exec("mkdir ROCfolder");
+  gSystem->Exec("mkdir ROCfolder/" + printFormat);
 
   if(typeOfCut != ">" && typeOfCut != "<"){
     cout<<"Please tell me if you want to keep the events above the optimal value I'll find ('>') or below it ('<')"<<endl;
@@ -109,40 +131,29 @@ int doTheROC(TString variable = "hHt3",
     return 0;
   }
 
-  //signal files
-  TFile *fsig = new TFile("rootFiles/OF/" + sampleName  + ".root","read");
+  Float_t max = 0;
+  if (max_.IsDigit())
+    max = max_.Atof();
 
-  //defining signal histogram
-  TH1F* hsig = (TH1F*)fsig -> Get(variable);
+  //signal files and histograms
+  for(int j = 0; j < nSig; ++j){
+    fSig[j] = new TFile("rootFiles/OF/" + sigName[j]  + ".root","read");
+    hSig[j] = (TH1F*)fSig[j] -> Get(variable);
+  }
 
-  //defining background names
-  TString name[nBkg];
-  name[0] = "TTbar50"; 
-  name[1] = "WJets50";  
-
-  //background files
-  TFile *fbkg[nBkg];
-  fbkg[0] = new TFile("rootFiles/OF/" + name[0]  +".root","read");
-  fbkg[1] = new TFile("rootFiles/OF/" + name[1]  +".root","read");
-
-  //defining background histograms
-  TH1F *hbkg[nBkg];
-  hbkg[0]  = (TH1F*)fbkg[0] -> Get(variable);
-  hbkg[1]  = (TH1F*)fbkg[1] -> Get(variable);
-  
-  //defining graphs
-  TGraph *g  = new TGraph();
-  TGraph *g2 = new TGraph();
-  TGraph *g3 = new TGraph();
-  TGraph *g4 = new TGraph();
+  //background files and histograms
+  for(int i = 0; i < nBkg; ++i){
+    fBkg[i] = new TFile("rootFiles/OF/" + bkgName[i]  +".root","read");
+    hBkg[i]  = (TH1F*)fBkg[i] -> Get(variable);
+  }
 
   //total number of signal events (no cuts applied)
-  Float_t totSig = hsig->Integral();
+  Float_t totSig = hSig[0]->Integral();
 
   //total number of background events (no cuts applied)
   Float_t totBkg = 0;
   for(int q = 0; q < nBkg; ++q)
-    totBkg = totBkg + hbkg[q] ->Integral();
+    totBkg = totBkg + hBkg[q] ->Integral();
 
   //defining variables
   Float_t effSig = 0.;
@@ -154,36 +165,38 @@ int doTheROC(TString variable = "hHt3",
     //calculating signal efficiency
     Float_t sum = 0.;
     if (typeOfCut == "<")
-      sum = hsig->Integral(0.,i);                              
+      sum = hSig[0]->Integral(0.,i);                              
     else if (typeOfCut == ">")
-      sum = hsig->Integral(3000. - i, 3000.);                  
-    effSig = sum / totSig;
-    
+      sum = hSig[0]->Integral(3000. - i, 3000.);                  
+    if(totSig != 0)
+      effSig = sum / totSig;
+      
     //calculating background efficiency (and rejection)
     Float_t bkgInt = 0;
     for(int pp = 0; pp < nBkg; ++pp)
       if (typeOfCut == "<")
-	bkgInt = bkgInt + hbkg[pp]->Integral(0.,i);            
+	bkgInt = bkgInt + hBkg[pp]->Integral(0.,i);            
       else if (typeOfCut == ">")      
-	bkgInt = bkgInt + hbkg[pp]->Integral(3000. - i, 3000.);
+	bkgInt = bkgInt + hBkg[pp]->Integral(3000. - i, 3000.);
 
-    effBkg = bkgInt / totBkg; 
-    
+    if(totBkg != 0)
+      effBkg = bkgInt / totBkg; 
+
     //filling graphs
     g ->SetPoint(i, effSig, 1 - effBkg);
 
     if (typeOfCut == "<"){
-      Float_t den = (bkgInt + hsig->Integral(0.,i));           
+      Float_t den = (bkgInt + hSig[0]->Integral(0.,i));           
       if (den != 0)
-	g2->SetPoint(i, i, (hsig->Integral(0.,i)) / sqrt(den));
+	g2->SetPoint(i, i, (hSig[0]->Integral(0.,i)) / sqrt(den));
       g3->SetPoint(i, i, effSig);                              
       g4->SetPoint(i, i, 1 - effBkg); 
     }   
- 
+
     else if (typeOfCut == ">"){
-      Float_t den = (bkgInt + hsig->Integral(3000. - i, 3000.));   
+      Float_t den = (bkgInt + hSig[0]->Integral(3000. - i, 3000.));   
       if (den != 0)
-	g2->SetPoint(i, 3000. - i, (hsig->Integral(3000. - i, 3000.)) / sqrt(den));
+	g2->SetPoint(i, 3000. - i, (hSig[0]->Integral(3000. - i, 3000.)) / sqrt(den));
       g3->SetPoint(i, 3000. - i, effSig);
       g4->SetPoint(i, 3000. - i, 1. - effBkg);
     }
@@ -199,41 +212,41 @@ int doTheROC(TString variable = "hHt3",
   padb->Draw();
   padb->cd();
 
-  hsig -> Rebin(10);
-  hsig -> Scale (1. / hsig -> Integral());
-  hsig -> GetYaxis()->SetRangeUser(0.,0.0180);
-  hsig -> SetLineWidth(5);
-  hsig -> SetStats(0);
+  hSig[0] -> Rebin(10);
+  hSig[0] -> Scale (1. / hSig[0] -> Integral());
+  hSig[0] -> GetYaxis()->SetRangeUser(0.,0.0180);
+  hSig[0] -> SetLineWidth(5);
+  hSig[0] -> SetStats(0);
 
-  hsig -> GetXaxis()->SetTitle(text);
-  hsig -> SetTitle("Normalized Distributions for the Sum of Leptons p_{T}");
-  hsig->GetXaxis()->SetTitleSize(0.05);
-  hsig->GetXaxis()->SetTitleOffset(1.2);
-  hsig->GetXaxis()->SetLabelSize(0.05);
-  hsig->GetYaxis()->SetTitleOffset(1.4);
-  hsig->GetYaxis()->SetTitleSize(0.05);
-  hsig->GetYaxis()->SetLabelSize(0.05);
-  hsig->GetXaxis()->SetNdivisions(408);
+  hSig[0] -> GetXaxis()->SetTitle(text);
+  hSig[0] -> SetTitle("Normalized Distributions for the Sum of Leptons p_{T}");
+  hSig[0]->GetXaxis()->SetTitleSize(0.05);
+  hSig[0]->GetXaxis()->SetTitleOffset(1.2);
+  hSig[0]->GetXaxis()->SetLabelSize(0.05);
+  hSig[0]->GetYaxis()->SetTitleOffset(1.4);
+  hSig[0]->GetYaxis()->SetTitleSize(0.05);
+  hSig[0]->GetYaxis()->SetLabelSize(0.05);
+  hSig[0]->GetXaxis()->SetNdivisions(408);
 
-  hsig -> Draw();
+  hSig[0] -> Draw();
 
   TLegend* legb = new TLegend(0.60,0.55,0.75,0.85);
   legb->SetTextSize(0.04);
   legb->SetFillColor(kWhite);
   legb->SetLineColor(kWhite);
 
-  legb -> AddEntry(hsig,"signal","l");
+  legb -> AddEntry(hSig[0],"signal","l");
 
   for(int b = 0; b < nBkg; ++b){
-    hbkg[b] -> Rebin(10);
-    hbkg[b] -> SetStats(0);
-    hbkg[b] -> SetLineWidth(5);
-    hbkg[b] -> Scale (1. / hbkg[b] -> Integral());
-    hbkg[b] -> GetYaxis()->SetRangeUser(0.,0.018);
-    hbkg[b] -> SetLineColor(b + 1);
-    legb -> AddEntry(hbkg[b], name[b],"l");
-    cout<<hbkg[b]->GetTitle()<<endl;
-    hbkg[b] -> Draw("same");
+    hBkg[b] -> Rebin(10);
+    hBkg[b] -> SetStats(0);
+    hBkg[b] -> SetLineWidth(5);
+    hBkg[b] -> Scale (1. / hBkg[b] -> Integral());
+    hBkg[b] -> GetYaxis()->SetRangeUser(0.,0.018);
+    hBkg[b] -> SetLineColor(b + 1);
+    legb -> AddEntry(hBkg[b], bkgName[b],"l");
+    cout<<hBkg[b]->GetTitle()<<endl;
+    hBkg[b] -> Draw("same");
   }
   legb->Draw();
 
@@ -269,9 +282,11 @@ int doTheROC(TString variable = "hHt3",
   g2->GetYaxis()->SetTitleSize(0.05);
   g2->GetYaxis()->SetLabelSize(0.05);
 
-  Float_t drawCut = FitBestCut(g2,max);
+  //  Float_t drawCut = FitBestCut(g2,max);
+  Float_t drawCut = GetXofTheMax(g2,max);
   cout<<"I'd like to cut here: "<<TMath::Nint(drawCut)<<endl;
-  Float_t significanceCut = FitBestY(g2,max);
+  //Float_t significanceCut = FitBestY(g2,max);
+  Float_t significanceCut = g2->Eval(TMath::Nint(drawCut));
   cout<<"Doing so the Significance would be "<<significanceCut<<endl;
   //cutFile<<variable<<" "<<typeOfCut<<" "<<TMath::Nint(drawCut)<<" -> Significance  "<<significanceCut<<endl;
 
@@ -328,15 +343,8 @@ int doTheROC(TString variable = "hHt3",
   //p->Draw("Psame");
 
   c1->Print("RocAll" + variable + "." + printFormat,printFormat); 
-  if (variable.Contains("TwoLeptonsLevel")) 
-    gSystem->Exec("mv RocAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/NoCut");
-  else if (variable.Contains("Level0"))
-    gSystem->Exec("mv RocAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/FirstCut");
-  else if (variable.Contains("Level1"))
-    gSystem->Exec("mv RocAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/SecondCut");
-  else if (variable.Contains("Level2"))
-    gSystem->Exec("mv RocAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/ThirdCut");
-
+  gSystem->Exec("mv RocAll" + variable + "." + printFormat + " ROCfolder/" + printFormat);
+  
   TCanvas *c2 = new TCanvas("Significance","Significance",600.,600.);
   c2->cd();
 
@@ -351,15 +359,7 @@ int doTheROC(TString variable = "hHt3",
   //  g4->Draw("same");
 
   c2->Print("SignificanceAll" + variable + "." + printFormat, printFormat);  
-  if (variable.Contains("TwoLeptonsLevel")) 
-    gSystem->Exec("mv SignificanceAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/NoCut");
-  else if (variable.Contains("Level0"))
-    gSystem->Exec("mv SignificanceAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/FirstCut");
-  else if (variable.Contains("Level1"))
-    gSystem->Exec("mv SignificanceAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/SecondCut");
-  else if (variable.Contains("Level2"))
-    gSystem->Exec("mv SignificanceAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/ThirdCut");
-
+  gSystem->Exec("mv SignificanceAll" + variable + "." + printFormat + " ROCfolder/" + printFormat);
 
   TCanvas *c3 = new TCanvas("Efficiencies","Efficiencies",600.,600.);
   c3->cd();
@@ -386,15 +386,7 @@ int doTheROC(TString variable = "hHt3",
   leg->Draw("same");
 
   c3->Print("EfficienciesAll" + variable + "." + printFormat,printFormat);
-  if (variable.Contains("TwoLeptonsLevel")) 
-    gSystem->Exec("mv EfficienciesAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/NoCut");
-  else if (variable.Contains("Level0"))
-    gSystem->Exec("mv EfficienciesAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/FirstCut");
-  else if (variable.Contains("Level1"))
-    gSystem->Exec("mv EfficienciesAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/SecondCut");
-  else if (variable.Contains("Level2"))
-    gSystem->Exec("mv EfficienciesAll" + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/ThirdCut");
-
+  gSystem->Exec("mv EfficienciesAll" + variable + "." + printFormat + " ROCfolder/" + printFormat);
   
   TCanvas *c4 = new TCanvas("AllTogether","AllTogether",1800.,600.);
   c4->cd();
@@ -423,31 +415,49 @@ int doTheROC(TString variable = "hHt3",
   ll->Draw("same");
 
   c4->Print(variable + "." + printFormat,printFormat);
-  if (variable.Contains("TwoLeptonsLevel")) 
-    gSystem->Exec("mv " + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/NoCut");
-  else if (variable.Contains("Level0"))
-    gSystem->Exec("mv " + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/FirstCut");
-  else if (variable.Contains("Level1"))
-    gSystem->Exec("mv " + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/SecondCut");
-  else if (variable.Contains("Level2"))
-    gSystem->Exec("mv " + variable + "." + printFormat + " orthogonalCuts/" + sampleName + "/" + printFormat + "/ThirdCut");
+  gSystem->Exec("mv " + variable + "." + printFormat + " ROCfolder/" + printFormat);
 
   delete c1;
   delete c2;
   delete c3;
-  delete g;
-  delete g2;
-  delete g3;
-  delete g4;
-
+  g ->Clear();
+  g2->Clear();
+  g3->Clear();
+  g4->Clear();
+  /*  for(int d = 0; d < nSig; ++d){
+    delete fSig[d];
+    delete hSig[d];
+  }
+  for(int e = 0; e < nBkg; ++e){
+    delete fBkg[d];
+    delete hBkg[d];
+  }
+  */
   return 0;
 }
 
-void ROC(TString printMode = "png", TString sample = "WW50"){
+void ROC(TString printMode = ""){
+
+  //  if (variable == "" || typeOfCut == "" || max_ == "" || printFormat == "" || text == ""){
+  if(printMode == ""){
+    cout<<"********************************************************************************************"<<endl;
+    cout<<"Please select a valid set of input options:"<<endl;
+    //cout<<"variable: name of the histogram you want to analyze"<<endl;
+    //cout<<"typeOfCut: select the part of the histogram you want to KEEP, '>' or '<' wrt the cut applied"<<endl;
+    //cout<<"max_: the maximum value you want the code to scan the histogram (no more than 3000)"<<endl;
+    cout<<"printFormat: 'C', 'png' or 'pdf'"<<endl;
+    //cout<<"text: the x-axis tag (usually the name of the variable and the units)"<<endl;
+    cout<<"Remember that some pieces of information have to be added to the 'letsROC.txt file:'"<<endl;
+    cout<<"'variable', 'typeOfCut', 'max_' and 'text'"<<endl;
+    cout<<"Launch the code as: root -l -b -q 'ROC.C('printFormat')'"<<endl;
+    cout<<"For example: root -l -b -q 'ROC.C(\"pdf\")'"<<endl;
+    cout<<"********************************************************************************************"<<endl;
+    return 0;
+  }
 
   TString var = ""; 
   TString cutType = "";
-  Float_t rightBound = 0;
+  TString rightBound = "";
   TString tagText = "";
 
   //input file
@@ -462,8 +472,8 @@ void ROC(TString printMode = "png", TString sample = "WW50"){
     input.open("out.tmp",std::ios::in);
     input >> var >> cutType >> rightBound >> tagText;
     input.close();
-    cout<< var <<" "<< sample <<" "<< cutType <<" "<< rightBound <<" "<<printMode<<" "<< tagText <<endl;
-    doTheROC(var, sample, cutType, rightBound, printMode, tagText);
+    //    cout<< var <<" "<<" "<< cutType <<" "<< rightBound <<" "<<printMode<<" "<< tagText <<endl;
+    doTheROC(var, cutType, rightBound, printMode, tagText);
   } 
 
   float helpSig;
@@ -494,5 +504,5 @@ void ROC(TString printMode = "png", TString sample = "WW50"){
   inFile.close();
   cutFile.close();
   gSystem->Exec("rm out.tmp");
-  gSystem->Exec("mv info.txt orthogonalCuts/" + sample + "/" + printMode + "/");
+  gSystem->Exec("mv info.txt ROCfolder/" + printMode);
 }
