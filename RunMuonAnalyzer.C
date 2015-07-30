@@ -31,9 +31,10 @@ void RunMuonAnalyzer(TString data,
 
   gSystem -> Exec("mkdir rootFiles");
   gSystem -> Exec("mkdir rootFiles/" + flavorChannel);
+  gSystem -> Exec("mkdir rootFiles/" + flavorChannel + "/" + muonID);
 
   // Manual Input Parameters
-  bool     debug            = false;   //For verbose while debugging
+  bool     debug            = true;    //For verbose while debugging
   int      nEventsToProcess = -1;      //Number of events to be processed (-1 = all)
   bool     doReport         = false;   //Count events and print final report
 
@@ -55,6 +56,14 @@ void RunMuonAnalyzer(TString data,
   else if ( PAFMode == "Cluster" || PAFMode == "cluster" )
   PAFProject* myProject = new PAFProject( new PAFPROOFClusterEnvironment(10,20) );
 
+  // Create Project in Lite Environment mode
+  else if ( PAFMode == "Lite" || PAFMode == "lite" )
+  PAFProject* myProject = new PAFProject( new PAFPROOFLiteEnvironment(8) );
+
+  // Create Project in PoD Environment mode
+  else if ( PAFMode == "PoD" || PAFMode == "pod" || PAFMode == "POD" )
+  PAFProject* myProject = new PAFProject( new PAFPoDEnvironment() );
+
   else {
     cout<<"Please select a valid PAF operating mode: Sequential or Cluster"<<endl;
     return; 
@@ -65,6 +74,9 @@ void RunMuonAnalyzer(TString data,
 
   ////////////////////////////////////////////////
   // ADD SAMPLES
+
+  //25ns
+  //*******************************************************************************
 
   if (data=="WW25") {
 
@@ -81,19 +93,63 @@ void RunMuonAnalyzer(TString data,
     myProject->AddDataFile(path25 + "latino_WJetsToLNu.root");
     
     isdata             = false;
-    nEventsInTheSample = 132180; 
-    xSection           = 20508.9;
+    nEventsInTheSample = 10370741; 
+    xSection           = 60781.5;
     whichRun           = 2; 
   }
+
+  else if (data=="HWW25") {
+
+    myProject->AddDataFile(path25 + "latino_ggHWW120.root");
+    
+    isdata             = false;
+    nEventsInTheSample = 349694; 
+    xSection           = 0.9913;
+    whichRun           = 2; 
+  }
+
+  else if (data=="ZZ25") {
+
+    myProject->AddDataFile(path25 + "latino_ZZ.root");
+    
+    isdata             = false;
+    nEventsInTheSample = 206249; 
+    xSection           = 31.8;
+    whichRun           = 2; 
+  }
+
+  else if (data=="singleTop25") {
+
+    myProject->AddDataFile(path25 + "latino_topTchannelAntitop.root");
+
+    isdata             = false;
+    nEventsInTheSample = 1112252;
+    xSection           = ;
+    whichRun           = 2;
+  }
+
+  else if (data=="TW25") {
+
+    myProject->AddDataFile(path25 + "latino_topTWantitop.root");
+    myProject->AddDataFile(path25 + "latino_topTWtop.root");
+
+    isdata             = false;
+    nEventsInTheSample = 475039 + 473153;
+    xSection           = 71.6;
+    whichRun           = 2;
+  }
+
+  //50ns
+  //*******************************************************************************
 
   else if (data=="WW50") {
 
     myProject->AddDataFile(path50 + "latino_WWTo2L2Nu.root");
 
     isdata             = false;
-    nEventsInTheSample = 128512;
+    nEventsInTheSample = 128512; 
     xSection           = 12.461;
-    whichRun           = 2;
+    whichRun           = 2; 
   }
 
   else if (data=="WJets50") {
@@ -102,7 +158,7 @@ void RunMuonAnalyzer(TString data,
 
     isdata             = false;
     nEventsInTheSample = 132180;
-    xSection           = 20508.9;
+    xSection           = 60781.5;
     whichRun           = 2;
   }
 

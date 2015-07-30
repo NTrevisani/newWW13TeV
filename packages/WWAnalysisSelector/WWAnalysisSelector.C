@@ -25,7 +25,6 @@
 #include "TROOT.h"
 #include <iostream>
 #include "TSystem.h"
-#include "TLorentzVector.h"
 
 #include "TDatabasePDG.h"
 
@@ -478,7 +477,8 @@ void WWAnalysisSelector::InsideLoop() {
      if(std_vector_lepton_pt -> at(i) > 10)
        ++nextra;
    nextra = nextra -2;
-   
+
+   /*   
    //building dRjet1
    Float_t dRjet1  = 100.;
    TLorentzVector vjet1(0.,0.,0.,0.);
@@ -509,7 +509,7 @@ void WWAnalysisSelector::InsideLoop() {
 	 }
        }
    }
-   
+*/
    //Building dphijet1met
    dphijet1met = 0.;
    if (jetphi1 > 0 && pfType1Metphi > 0){
@@ -522,7 +522,6 @@ void WWAnalysisSelector::InsideLoop() {
    if (pfType1Met > 0 && trkMet > 0)
      ratioMet = pfType1Met / sqrt(pfType1Met + trkMet);
 
-
    // The selection begins here
    //--------------------------------------------------------------------------
    if (std_vector_lepton_pt->at(0) > 20)
@@ -534,16 +533,16 @@ void WWAnalysisSelector::InsideLoop() {
 	      (SelectedChannel == 5 && (channel == 0 || channel == 1) ) 
 	      ){
   
-	   if (IsTightLepton(0) && !IsTightLepton(1))
+	   if (IsTightLepton(0,_MuonID) && !IsTightLepton(1,_MuonID))
 	     hLooseIso -> Fill(ElectronIsolation(1), totalW);
-	   if (IsTightLepton(1) && !IsTightLepton(0))
+	   if (IsTightLepton(1,_MuonID) && !IsTightLepton(0,_MuonID))
 	     hLooseIso -> Fill(ElectronIsolation(0), totalW);
 	   
 	   if (IsIsolatedLepton(0))
 	     if (IsIsolatedLepton(1))
-	       if (IsTightLepton(0))
-		 if (IsTightLepton(1)){
-	       
+	       if (IsTightLepton(0,_MuonID))
+		 if (IsTightLepton(1,_MuonID)){
+
 		   tree->Fill();
 	       //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	       //
@@ -565,8 +564,8 @@ void WWAnalysisSelector::InsideLoop() {
 	       hDeltaPhiLeptonsTwoLeptonsLevel->Fill(dphill,     totalW);
 	       hDPhiPtllJetTwoLeptonsLevel    ->Fill(dphilljet,  totalW);
 	       hNjetsTwoLeptonsLevel          ->Fill(njet,       totalW);
-	       hNjetsPlot1TwoLeptonsLevel     ->Fill(dRjet1,     totalW);
-	       hNjetsPlot2TwoLeptonsLevel     ->Fill(dRjet2,     totalW);
+	       //	       hNjetsPlot1TwoLeptonsLevel     ->Fill(dRjet1,     totalW);
+	       //	       hNjetsPlot2TwoLeptonsLevel     ->Fill(dRjet2,     totalW);
 	       hSigMuNoHtTwoLeptonsLevel      ->Fill(std_vector_lepton_muSIP3D->at(0),totalW);
 	       hSigElNoHtTwoLeptonsLevel      ->Fill(std_vector_lepton_elSIP3D->at(0),totalW);
 
@@ -655,7 +654,7 @@ void WWAnalysisSelector::InsideLoop() {
 				 hSigElNoHt[3]                 ->Fill(std_vector_lepton_elSIP3D->at(0),totalW);
 
 				 //bveto Ht 
-				 if(Ht < 218){
+				 if(Ht < 237){
 				   hPtLepton1WWLevel[3]      ->Fill(pt1,       totalW);
 				   hPtLepton2WWLevel[3]      ->Fill(pt2,       totalW);
 				   hPtDiLeptonWWLevel[3]     ->Fill(ptll,      totalW);
@@ -672,7 +671,7 @@ void WWAnalysisSelector::InsideLoop() {
 				 }
 				 
 				 //bveto Ht 
-				 if(Ht > 218){
+				 if(Ht > 237){
 				   
 				   hPtLepton1WWLevelHtPlus[3]      ->Fill(pt1,       totalW);
 				   hPtLepton2WWLevelHtPlus[3]      ->Fill(pt2,       totalW);
@@ -707,7 +706,7 @@ void WWAnalysisSelector::InsideLoop() {
 				     hSigElNoHt[jetNumber]                 ->Fill(std_vector_lepton_elSIP3D->at(0),totalW);
 				     
 				     //bveto Ht  
-				     if(Ht < 218){
+				     if(Ht < 237){
 				       
 				       hPtLepton1WWLevel[jetNumber]      ->Fill(pt1,       totalW);
 				       hPtLepton2WWLevel[jetNumber]      ->Fill(pt2,       totalW);
@@ -724,7 +723,7 @@ void WWAnalysisSelector::InsideLoop() {
 				     }
 				     
 				     //bveto Ht  
-				     if(Ht > 218){
+				     if(Ht > 237){
 				       
 				       hPtLepton1WWLevelHtPlus[jetNumber]      ->Fill(pt1,       totalW);
 				       hPtLepton2WWLevelHtPlus[jetNumber]      ->Fill(pt2,       totalW);
@@ -973,37 +972,36 @@ void WWAnalysisSelector::Summary() {
 // https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
 // egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium
 //------------------------------------------------------------------------------
-bool WWAnalysisSelector::IsTightLepton(int k)
+bool WWAnalysisSelector::IsTightLepton(int k, TString _MuonID_)
 {
   bool is_tight_lepton = false;
 
   // Muon ID
   if (fabs(std_vector_lepton_id->at(k)) == 13){
-
-    if (_MuonID.Contains("MediumID")){
-      if (std_vector_lepton_isMediumMuon->at(k) == 1){
+    
+    if (_MuonID_ == "MediumID"){
+      if (std_vector_lepton_isMediumMuon->at(k) == 1)
 	is_tight_lepton = true;
-	if(_MuonID == "MediumIDTighterIP"){
-	  is_tight_lepton = false;
-	  if (fabs(std_vector_lepton_BestTrackdxy -> at(k)) < 0.02)
-	    if (fabs(std_vector_lepton_BestTrackdz -> at(k)) < 0.1)
-	      is_tight_lepton = true;
-	}
-      }
     }
     
-    else if (_MuonID.Contains("TightID") ){
-      if (std_vector_lepton_isTightMuon->at(k) == 1){
-	is_tight_lepton = true;
-	if(_MuonID == "TightIDTighterIP"){
-	  is_tight_lepton = false;
-	  if (fabs(std_vector_lepton_BestTrackdxy -> at(k)) < 0.02)
-	    if (fabs(std_vector_lepton_BestTrackdz -> at(k)) < 0.1)
-	      is_tight_lepton = true;
-	}
-      }
+    else if(_MuonID_ == "MediumIDTighterIP"){
+      if (std_vector_lepton_isMediumMuon->at(k) == 1)
+	if (fabs(std_vector_lepton_BestTrackdxy -> at(k)) < 0.02)
+	  if (fabs(std_vector_lepton_BestTrackdz -> at(k)) < 0.1)
+	    is_tight_lepton = true;
     }
-
+    
+    else if (_MuonID_ == "TightID" ){
+      if (std_vector_lepton_isTightMuon->at(k) == 1)
+	is_tight_lepton = true;
+    }
+    
+    else if(_MuonID_ == "TightIDTighterIP"){
+      if (std_vector_lepton_isTightMuon->at(k) == 1)
+	if (fabs(std_vector_lepton_BestTrackdxy -> at(k)) < 0.02)
+	  if (fabs(std_vector_lepton_BestTrackdz -> at(k)) < 0.1)
+	    is_tight_lepton = true;
+    }
   }
   
   // Electron cut based medium ID

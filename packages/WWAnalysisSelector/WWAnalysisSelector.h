@@ -39,7 +39,7 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   //PUWeight* fPUWeight;
 
   float Testing(int k);
-  bool  IsTightLepton(int k);
+  bool  IsTightLepton(int k, TString _MuonID_);
   float MuonIsolation(int k);
   float ElectronIsolation(int k);
   bool  IsIsolatedLepton(int k);
