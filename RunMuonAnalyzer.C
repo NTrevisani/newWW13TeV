@@ -21,11 +21,12 @@ void RunMuonAnalyzer(TString data,
 		     TString muonID
 		     ) {
  
-  gSystem->Load("libPAF.so");   
+  //  gSystem->Load("libPAF.so");   
 
-  TString path25      = "/gpfs/csic_projects/cms/trevisanin/newLatino/25ns/";
-  TString path50      = "/gpfs/csic_projects/cms/trevisanin/newLatino/50ns/";
+  TString path25      = "/gpfs/csic_projects/tier3data/LatinosSkims/MC_Spring15/25ns_August/";
+  TString path50      = "/gpfs/csic_projects/tier3data/LatinosSkims/MC_Spring15/50ns_August/";
   TString pathOld     = "/gpfs/csic_projects/cms/trevisanin/newLatino/";
+  TString pathData    = "/gpfs/csic_projects/tier3data/LatinosSkims/Data13TeVRun2015B/";
 
   TString outPath     = "rootFiles/" + flavorChannel + "/" + muonID + "/";
 
@@ -142,6 +143,22 @@ void RunMuonAnalyzer(TString data,
   //50ns
   //*******************************************************************************
 
+  else if (data=="Data2015_50") {
+
+    myProject->AddDataFile(pathData + "latino_DoubleEG.root");
+    myProject->AddDataFile(pathData + "latino_MuonEG.root");
+    myProject->AddDataFile(pathData + "latino_SingleElectron.root");
+    myProject->AddDataFile(pathData + "latino_SingleMuon.root");
+    myProject->AddDataFile(pathData + "latino_DoubleMuonLowMass.root");
+    myProject->AddDataFile(pathData + "latino_DoubleMuon.root");
+    myProject->AddDataFile(pathData + "latino_SingleMu.root");
+
+    isdata             = false;
+    nEventsInTheSample = 128512; 
+    xSection           = 12.461;
+    whichRun           = 2; 
+  }
+
   else if (data=="WW50") {
 
     myProject->AddDataFile(path50 + "latino_WWTo2L2Nu.root");
@@ -162,9 +179,23 @@ void RunMuonAnalyzer(TString data,
     whichRun           = 2;
   }
 
-  else if (data=="TTbar50") {
+  else if (data=="VV50") {
+  
+    myProject->AddDataFile(path50 + "latino_WZ.root");
+    myProject->AddDataFile(path50 + "latino_ZZ.root");
 
-    myProject->AddDataFile(path50 + "latino_TTTo2L2Nu.root");
+    isdata             = false;
+    nEventsInTheSample = 132180;
+    xSection           = 60781.5;
+    whichRun           = 2;
+  }
+  
+  else if (data=="Top50") {
+
+    myProject->AddDataFile(path50 + "latino_TTJets.root");
+    myProject->AddDataFile(path50 + "latino_ST_t-channel.root");
+    myProject->AddDataFile(path50 + "latino_ST_tW_antitop.root");
+    myProject->AddDataFile(path50 + "latino_ST_tW_top.root");
 
     isdata             = false;
     nEventsInTheSample = 2309030;
@@ -172,6 +203,16 @@ void RunMuonAnalyzer(TString data,
     whichRun           = 2;
   }
 
+  else if (data=="DY50") {
+    
+    myProject->AddDataFile(path50 + "latino_DYJetsToLL_M-50.root");
+
+    isdata             = false;
+    nEventsInTheSample = 2309030;
+    xSection           = 87.315;
+    whichRun           = 2;
+  }
+  
   else{
     cout<<"************************************************************"<<endl;
     cout<<"I can't find the sample you are asking for. Please try again"<<endl;

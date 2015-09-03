@@ -6,30 +6,35 @@ if [ $# -lt 1 ]; then
      exit -1
 fi
 
-LUMINOSITY=5.
+LUMINOSITY=0.04008
 
 NJETS=$1
 
-CHANNELS="OF"
-#All SF EE MuE EMu MuMu "
+CHANNELS="MuMu" 
+#MuMu All SF EE MuE EMu MuMu "
 
 PROOFMODE="Cluster"
 
 SAMESIGN="OS" 
 
 MUONIDS="MediumIDTighterIP"
-#MediumID TightID TightIDTighterIP"
+#"MediumID TightID TightIDTighterIP MediumIDTighterIP"
 
 SAMPLES="
-WW50                \
-WJets50             \
-TTbar50             \
+Top50                \
+Data2015_50          \
+WW50                 \
+VV50                 \
+WJets50              \
+DY50                 \
 "
-#QCD                \ 
-#Top                \
-#TTJets             \
-#VBF                \
-#WW                 \
+#WW25                 \
+#WJets25              \
+#HWW25                \
+#ZZ25                 \
+#singleTop25          \
+#TW25                 \
+#"
 
 #rm -rf rootfiles/${NJETS}jet
 
