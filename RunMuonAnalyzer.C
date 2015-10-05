@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////                                                                                             /////////////
 /////////////                                     WW ANALYSIS WITH PAF                                    /////////////
@@ -22,17 +22,18 @@ void RunMuonAnalyzer(TString data,
 		     ) {
  
   //  gSystem->Load("libPAF.so");   
-
-  TString path25      = "/gpfs/csic_projects/tier3data/LatinosSkims/MC_Spring15/25ns_August/";
-  TString path50      = "/gpfs/csic_projects/tier3data/LatinosSkims/MC_Spring15/50ns_August/";
+  TString path25      = "/gpfs/csic_projects/tier3data/LatinosSkims/MC_Spring15/25ns_August_PU/";
+  TString path50      = "/gpfs/csic_projects/tier3data/LatinosSkims/MC_Spring15/50ns_August_PU/";
   TString pathOld     = "/gpfs/csic_projects/cms/trevisanin/newLatino/";
   TString pathData    = "/gpfs/csic_projects/tier3data/LatinosSkims/Data13TeVRun2015B/";
 
-  TString outPath     = "rootFiles/" + flavorChannel + "/" + muonID + "/";
+  TString outPath     = "/gpfs/csic_users/trevisanin/newWW13TeV/rootFiles/" + flavorChannel + "/" + muonID + "/";
 
-  gSystem -> Exec("mkdir rootFiles");
-  gSystem -> Exec("mkdir rootFiles/" + flavorChannel);
-  gSystem -> Exec("mkdir rootFiles/" + flavorChannel + "/" + muonID);
+  gSystem -> Exec("mkdir /gpfs/csic_users/trevisanin/newWW13TeV/rootFiles");
+  gSystem -> Exec("mkdir /gpfs/csic_users/trevisanin/newWW13TeV/rootFiles/" + flavorChannel);
+  gSystem -> Exec("mkdir /gpfs/csic_users/trevisanin/newWW13TeV/rootFiles/" + flavorChannel + "/" + muonID);
+  gSystem -> Exec("mkdir /gpfs/csic_users/trevisanin/newWW13TeV/rootFiles/" + flavorChannel + "/" + muonID + "/25ns/");
+  gSystem -> Exec("mkdir /gpfs/csic_users/trevisanin/newWW13TeV/rootFiles/" + flavorChannel + "/" + muonID + "/50ns/");
 
   // Manual Input Parameters
   bool     debug            = true;    //For verbose while debugging
@@ -99,16 +100,6 @@ void RunMuonAnalyzer(TString data,
     whichRun           = 2; 
   }
 
-  else if (data=="HWW25") {
-
-    myProject->AddDataFile(path25 + "latino_ggHWW120.root");
-    
-    isdata             = false;
-    nEventsInTheSample = 349694; 
-    xSection           = 0.9913;
-    whichRun           = 2; 
-  }
-
   else if (data=="ZZ25") {
 
     myProject->AddDataFile(path25 + "latino_ZZ.root");
@@ -129,10 +120,9 @@ void RunMuonAnalyzer(TString data,
     whichRun           = 2;
   }
 
-  else if (data=="TW25") {
+  else if (data=="HWW25") {
 
-    myProject->AddDataFile(path25 + "latino_topTWantitop.root");
-    myProject->AddDataFile(path25 + "latino_topTWtop.root");
+    myProject->AddDataFile(path25 + "latino_GluGluHToWWTo2L2Nu_M125.root");
 
     isdata             = false;
     nEventsInTheSample = 475039 + 473153;
@@ -140,20 +130,41 @@ void RunMuonAnalyzer(TString data,
     whichRun           = 2;
   }
 
+  else if (data=="TW25") {
+
+    myProject->AddDataFile(path25 + "latino_ST_tW_antitop.root");
+    myProject->AddDataFile(path25 + "latino_ST_tW_top.root");
+
+    isdata             = false;
+    nEventsInTheSample = 372091;
+    xSection           = 0.9913;
+    whichRun           = 2;
+  }
+
+  else if (data=="DY25") {
+
+    myProject->AddDataFile(path25 + "latino_DYJetsToLL_M-10to50.root");
+
+    isdata             = false;
+    nEventsInTheSample = 4081613;
+    xSection           = 18610;
+    whichRun           = 2;
+  }
+
   //50ns
   //*******************************************************************************
 
-  else if (data=="Data2015_50") {
+  else if (data=="Data201550") {
 
     myProject->AddDataFile(pathData + "latino_DoubleEG.root");
     myProject->AddDataFile(pathData + "latino_MuonEG.root");
     myProject->AddDataFile(pathData + "latino_SingleElectron.root");
     myProject->AddDataFile(pathData + "latino_SingleMuon.root");
-    myProject->AddDataFile(pathData + "latino_DoubleMuonLowMass.root");
+    //myProject->AddDataFile(pathData + "latino_DoubleMuonLowMass.root");
     myProject->AddDataFile(pathData + "latino_DoubleMuon.root");
-    myProject->AddDataFile(pathData + "latino_SingleMu.root");
+    //myProject->AddDataFile(pathData + "latino_SingleMu.root");
 
-    isdata             = false;
+    isdata             = true;
     nEventsInTheSample = 128512; 
     xSection           = 12.461;
     whichRun           = 2; 
@@ -161,11 +172,11 @@ void RunMuonAnalyzer(TString data,
 
   else if (data=="WW50") {
 
-    myProject->AddDataFile(path50 + "latino_WWTo2L2Nu.root");
+    myProject->AddDataFile(path50 + "latino_WWTo2L2Nu_NLL.root");
 
     isdata             = false;
-    nEventsInTheSample = 128512; 
-    xSection           = 12.461;
+    nEventsInTheSample = 376031;
+    xSection           = 10.481;
     whichRun           = 2; 
   }
 
@@ -174,8 +185,8 @@ void RunMuonAnalyzer(TString data,
     myProject->AddDataFile(path50 + "latino_WJetsToLNu.root");
 
     isdata             = false;
-    nEventsInTheSample = 132180;
-    xSection           = 60781.5;
+    nEventsInTheSample = 10249764;
+    xSection           = 20508.9;
     whichRun           = 2;
   }
 
@@ -185,21 +196,43 @@ void RunMuonAnalyzer(TString data,
     myProject->AddDataFile(path50 + "latino_ZZ.root");
 
     isdata             = false;
-    nEventsInTheSample = 132180;
-    xSection           = 60781.5;
+    nEventsInTheSample = 266293 + 204666;
+    xSection           = 31.8 + 66.1;
     whichRun           = 2;
   }
   
-  else if (data=="Top50") {
+  else if (data == "TTJets50") {
 
     myProject->AddDataFile(path50 + "latino_TTJets.root");
+
+    isdata             = false;
+    nEventsInTheSample = 2562273;
+    xSection           = 831.76;
+    whichRun           = 2;
+  }
+  /* GEN_weight_SM still not available
+  else if (data == "SingleTop50") {
+
     myProject->AddDataFile(path50 + "latino_ST_t-channel.root");
-    myProject->AddDataFile(path50 + "latino_ST_tW_antitop.root");
-    myProject->AddDataFile(path50 + "latino_ST_tW_top.root");
 
     isdata             = false;
     nEventsInTheSample = 2309030;
     xSection           = 87.315;
+    whichRun           = 2;
+  }
+  */
+  else if (data=="Top50") {
+
+    //myProject->AddDataFile(path50 + "latino_TTJets.root");
+    //myProject->AddDataFile(path50 + "latino_ST_t-channel.root");
+    myProject->AddDataFile(path25 + "latino_ST_t-channel_top.root");     //25ns sample!!!
+    myProject->AddDataFile(path25 + "latino_ST_t-channel_antitop.root"); //25ns sample!!!
+    myProject->AddDataFile(path50 + "latino_ST_tW_antitop.root");
+    myProject->AddDataFile(path50 + "latino_ST_tW_top.root");
+
+    isdata             = false;
+    nEventsInTheSample = 2562273 * 3;
+    xSection           = 70.69 + 35.6 + 35.6;
     whichRun           = 2;
   }
 
@@ -208,11 +241,21 @@ void RunMuonAnalyzer(TString data,
     myProject->AddDataFile(path50 + "latino_DYJetsToLL_M-50.root");
 
     isdata             = false;
-    nEventsInTheSample = 2309030;
-    xSection           = 87.315;
+    nEventsInTheSample = 11934836;
+    xSection           = 6025.2;
     whichRun           = 2;
   }
   
+  else if (data=="HWW50") {
+
+    myProject->AddDataFile(path25 + "latino_GluGluHToWWTo2L2Nu_M125.root");
+
+    isdata             = false;
+    nEventsInTheSample = 475039 + 473153;
+    xSection           = 71.6;
+    whichRun           = 2;
+  }
+
   else{
     cout<<"************************************************************"<<endl;
     cout<<"I can't find the sample you are asking for. Please try again"<<endl;
@@ -245,7 +288,17 @@ void RunMuonAnalyzer(TString data,
   // OUTPUT FILE NAME
   // Specify the name of the file where you want your histograms to be saved
 
-  myProject->SetOutputFile(outPath + data + ".root");
+  if (data.Contains("25")){
+    TString name = data;
+    name.Remove(name.Length() - 2, 2);
+    myProject->SetOutputFile(outPath + "25ns/" + name + ".root");
+  }
+
+  else if (data.Contains("50")){
+    TString name = data;
+    name.Remove(name.Length() - 2, 2);
+    myProject->SetOutputFile(outPath + "50ns/" + name + ".root");
+  }
 
   ///////////////////////////////
   // SELECTOR AND PACKAGES
