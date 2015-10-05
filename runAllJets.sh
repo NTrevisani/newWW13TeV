@@ -10,23 +10,26 @@ LUMINOSITY=0.04008
 
 NJETS=$1
 
-CHANNELS="MuMu" 
+CHANNELS="OF"
 #MuMu All SF EE MuE EMu MuMu "
 
-PROOFMODE="Cluster"
+PROOFMODE="Lite"
 
 SAMESIGN="OS" 
 
 MUONIDS="MediumIDTighterIP"
-#"MediumID TightID TightIDTighterIP MediumIDTighterIP"
+#"MediumIDTighterIP MediumID TightID TightIDTighterIP"
 
 SAMPLES="
+HWW50                \
+Data201550           \
 Top50                \
-Data2015_50          \
 WW50                 \
 VV50                 \
 WJets50              \
+DY25                 \
 DY50                 \
+TTJets50             \
 "
 #WW25                 \
 #WJets25              \
@@ -52,8 +55,15 @@ for CHANNEL in $CHANNELS; do
 	    mkdir rootFiles/${CHANNEL}/${MUONID}	
 	    root -l -b -q "RunMuonAnalyzer.C(\"$SAMPLE\",\"$CHANNEL\",\"$SAMESIGN\",\"$PROOFMODE\",$LUMINOSITY,\"$MUONID\")"
 	    
+	    endproof -f *
+	
+	    resetpaf
+	
 	done
 	
     done
 
 done
+
+#hadd -f rootFiles/${CHANNEL}/${MUONID}/Top.root rootFiles/${CHANNEL}/${MUONID}/TTJets50.root rootFiles/${CHANNEL}/${MUONID}/Top50.root
+#hadd -f rootFiles/${CHANNEL}/${MUONID}/DY.root rootFiles/${CHANNEL}/${MUONID}/DY50.root rootFiles/${CHANNEL}/${MUONID}/DY25.root

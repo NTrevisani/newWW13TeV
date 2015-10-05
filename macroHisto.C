@@ -17,11 +17,11 @@
 #include "TGraphErrors.h"
 #include "TLatex.h"
 
-const int nProcesses = 6;
+const int nProcesses = 8;
 
 int iData;
 
-enum {iWW, iWJets, iVV, iTop, iDY, iData};
+enum {iWW, iWJets, iVV, iTop, iTTJets, iDY, iHWW, iData};
 //enum {iWW, iTTbar, iWJets};
 
 TFile *input[nProcesses];
@@ -31,22 +31,25 @@ TH1F  *histo[nProcesses];
 
 TString process[nProcesses];
 
-process[iWW]     = "WW50";
-process[iWJets]  = "WJets50";
-process[iVV]     = "VV50";
-process[iTop]    = "Top50";
-process[iDY]     = "DY50";
-process[iData]   = "Data2015_50";
+process[iWW]     = "WW";
+process[iWJets]  = "WJets";
+process[iVV]     = "VV";
+process[iTop]    = "Top";
+process[iTTJets] = "TTJets";
+process[iDY]     = "DY";
+process[iHWW]    = "HWW";
+process[iData]   = "Data2015";
 
 Color_t color[nProcesses];
 
 color[iWW]     = kAzure - 9;
 color[iWJets]  = kGray + 1;
 color[iVV]     = kAzure - 2;
-color[iTop]    = kYellow;
+color[iTop]    = kYellow + 1;
+color[iTTJets] = kYellow;
 color[iDY]     = kGreen + 2;
+color[iHWW]    = kRed + 2;
 color[iData]   = kBlack;
-//color[iTTbar]   = kYellow;
 
 TGraphErrors *errors  = new TGraphErrors();
 TGraphErrors *erRatio = new TGraphErrors();
@@ -65,12 +68,13 @@ void drawPlots(TString variable,
 	       TString Channel,
 	       TString StackMode,
 	       TString muonID,
+	       TString bunch,
 	       TString DataMode = "dataon" 
 	       ){
 
   Float_t rangeY = 0.;
 
-  TString path = "rootFiles/" + Channel + "/" + muonID + "/";
+  TString path = "rootFiles/" + Channel + "/" + muonID + "/" + bunch + "/";
 
   for (int ip = 0; ip < nProcesses; ++ip){
     TString fileName = path + process[ip] + ".root";
@@ -332,7 +336,9 @@ void drawPlots(TString variable,
     for(int p = 0; p < histo[0]->GetNbinsX(); ++p){
       if(haxis.GetBinContent(p) != 0){
 	ratio.SetBinContent(p, histo[0]->GetBinCenter(p), histo[iData]->GetBinContent(p) / haxis.GetBinContent(p));
-	float ratioErr = histo[iData]->GetBinError(p) / histo[iData]->GetBinContent(p) + haxis.GetBinError(p) / haxis.GetBinContent(p);
+	float ratioErr = 0.; 
+	if (histo[iData]->GetBinContent(p) != 0)
+	  ratioErr = histo[iData]->GetBinError(p) / histo[iData]->GetBinContent(p) + haxis.GetBinError(p) / haxis.GetBinContent(p);
 	ratio.SetBinError(p, 0.5*histo[0]->GetBinWidth(p), ratioErr* ratio.GetBinContent(p));
       }
       else 
@@ -357,6 +363,7 @@ void drawPlots(TString variable,
     pad3->SetTitle(title);
     pad3->Draw();
     pad3->cd();
+    pad3->SetGridy(1);
     ratio.Draw("ep,2");
     erRatio->Draw("same,2");
   }
@@ -391,27 +398,27 @@ void drawPlots(TString variable,
   
   if (drawLog == "logoff" && norm == "normoff"){
     if (StackMode == "stackoff")
-      gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "/");
+      gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + bunch + "/" + Channel + "/" + muonID + "/" + format + "/");
     else
-      gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "/");
+      gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + bunch + "/" + Channel + "/" + muonID + "/" + format + "/");
   }
   else if(drawLog == "logon" && norm == "normoff"){
     if (StackMode == "stackoff")
-      gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "Log/");
+      gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + bunch + "/" + Channel + "/" + muonID + "/" + format + "Log/");
     else
-      gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "Log/");
+      gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + bunch + "/" + Channel + "/" + muonID + "/" + format + "Log/");
   }
   else if(drawLog == "logoff" && norm == "normon"){
     if (StackMode == "stackoff")
-      gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "Norm/");
+      gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + bunch + "/" + Channel + "/" + muonID + "/" + format + "Norm/");
     else
-      gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "Norm/");
+      gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + bunch + "/" + Channel + "/" + muonID + "/" + format + "Norm/");
   }
   else if(drawLog == "logon" && norm == "normon"){
     if (StackMode == "stackoff")
-      gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "NormLog/");
+      gSystem->Exec("mv " + variable + "." + format + " " + "distributions/" + bunch + "/" + Channel + "/" + muonID + "/" + format + "NormLog/");
     else
-      gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + Channel + "/" + muonID + "/" + format + "NormLog/");
+      gSystem->Exec("mv " + variable + "stack." + format + " " + "distributions/" + bunch + "/" + Channel + "/" + muonID + "/" + format + "NormLog/");
   }
   
 }
@@ -422,11 +429,12 @@ void macroHisto(TString printMode = "",
 		TString normMode  = "",
 		TString channel   = "",
 		TString stackMode = "",
-		TString MuonID    = ""
+		TString MuonID    = "",
+		TString Bunch     = ""
 		){
   
-  if(printMode == "" || logMode == "" || normMode == "" || channel == "" || stackMode == "" || MuonID == ""){
-    cout<<"****************************************************************************************************"<<endl;
+  if(printMode == "" || logMode == "" || normMode == "" || channel == "" || stackMode == "" || MuonID == "" || Bunch == ""){
+    cout<<"**************************************************************************************************************"<<endl;
     cout<<"Please choose a set of options."<<endl;
     cout<<"root -l -b -q 'macroHisto.C(printMode,logMode,normMode,channel)', where:"<<endl;
     cout<<"printMode = 'C', 'png' or 'pdf'"<<endl;
@@ -435,24 +443,26 @@ void macroHisto(TString printMode = "",
     cout<<"channel = 'All' or 'OF' or 'SF' or 'MuMu' or 'EE' or 'EMu' or 'MuE'"<<endl;
     cout<<"stackMode = 'stackon' or 'stackoff'"<<endl;
     cout<<"MuonID = 'MediumID' or 'MediumIDTighterIP' or 'TightID' or 'TightIDTighterIP'"<<endl;
+    cout<<"Bunch = '25ns' or '50ns'"<<endl;
     cout<<"I suggest, for example:"<<endl;
-    cout<<"root -l -b -q 'macroHisto.C(\"pdf\",\"logoff\",\"normoff\",\"OF\",\"stackon\",\"MediumIDTighterIP\")'"<<endl;
-    cout<<"****************************************************************************************************"<<endl;
+    cout<<"root -l -b -q 'macroHisto.C(\"pdf\",\"logoff\",\"normoff\",\"OF\",\"stackon\",\"MediumIDTighterIP\",\"50ns\")'"<<endl;
+    cout<<"**************************************************************************************************************"<<endl;
     return;
   }
 
   if (printMode == "C" || printMode == "png" || printMode == "pdf"){
     gSystem->Exec("mkdir distributions");
-    gSystem->Exec("mkdir distributions/" + channel);
-    gSystem->Exec("mkdir distributions/" + channel + "/" + MuonID);
+    gSystem->Exec("mkdir distributions/" + Bunch);
+    gSystem->Exec("mkdir distributions/" + Bunch + "/" + channel);
+    gSystem->Exec("mkdir distributions/" + Bunch + "/" + channel + "/" + MuonID);
     if (logMode == "logoff" && normMode == "normoff")
-      gSystem->Exec("mkdir distributions/"  + channel + "/" + MuonID + "/" + printMode);
+      gSystem->Exec("mkdir distributions/"  + Bunch + "/" + channel + "/" + MuonID + "/" + printMode);
     else if (logMode == "logoff" && normMode == "normon")
-      gSystem->Exec("mkdir distributions/"  + channel + "/" + MuonID + "/"  + printMode + "Norm");
+      gSystem->Exec("mkdir distributions/"  + Bunch + "/" + channel + "/" + MuonID + "/"  + printMode + "Norm");
     else if (logMode == "logon" && normMode == "normoff")
-      gSystem->Exec("mkdir distributions/"  + channel + "/" + MuonID + "/"  + printMode + "Log");
+      gSystem->Exec("mkdir distributions/"  + Bunch + "/" + channel + "/" + MuonID + "/"  + printMode + "Log");
     else if (logMode == "logon" && normMode == "normon")
-      gSystem->Exec("mkdir distributions/"  + channel + "/" + MuonID + "/"  + printMode + "NormLog");
+      gSystem->Exec("mkdir distributions/"  + Bunch + "/" + channel + "/" + MuonID + "/"  + printMode + "NormLog");
   }
   else{
     cout<<"please print a valid plot format: 'C', 'png' or 'pdf'"<<endl;
@@ -482,7 +492,12 @@ void macroHisto(TString printMode = "",
   if (MuonID != "MediumID" && MuonID != "TightID" && MuonID != "TightIDTighterIP" && MuonID != "MediumIDTighterIP"){
     cout<<"Please select the muon ID plots you want to draw"<<endl;
     return;
-}
+  }
+
+  if (Bunch != "25ns" && Bunch != "50ns"){
+    cout<<"Please select the bunch spacing: 50ns or 25ns"<<endl;
+    return;
+  }
 
   Int_t cont = 0;
   TString var;
@@ -502,7 +517,7 @@ void macroHisto(TString printMode = "",
     input_.open("out.tmp",std::ios::in);
     input_ >> var >> leftBound >> rightBound >> nbin >> units;
     input_.close();
-    drawPlots(var, leftBound, rightBound, nbin, units, printMode, logMode, normMode, channel, stackMode, MuonID);
+    drawPlots(var, leftBound, rightBound, nbin, units, printMode, logMode, normMode, channel, stackMode, MuonID, Bunch);
   } 
   
   inFile.close();
