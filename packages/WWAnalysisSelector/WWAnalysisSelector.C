@@ -124,6 +124,17 @@ void WWAnalysisSelector::Initialise() {
   
   h_n_PV = CreateH1F("h_n_PV","h_n_PV",50,0.,10.);
 
+  //Z + Jets Data Driven histograms
+  //----------------------------------------------------------------------------       
+
+  for (size_t nC=0; nC<numberMetCuts; nC++) {
+    hNinZevents     [nC] = CreateH1F(Form("hNinZevents%.i",      MetCut[nC]), "",    3, 0,    3);
+    hNoutZevents    [nC] = CreateH1F(Form("hNoutZevents%.i",     MetCut[nC]), "",    3, 0,    3);
+    hNinLooseZevents[nC] = CreateH1F(Form("hNinLooseZevents%.i", MetCut[nC]), "",    3, 0,    3);
+    hMassInZevents  [nC] = CreateH1F(Form("hMassInZevents%.i",   MetCut[nC]), "", 3000, 0, 3000);
+    hMassOutZevents [nC] = CreateH1F(Form("hMassOutZevents%.i",  MetCut[nC]), "", 3000, 0, 3000);
+  } 
+
   // Counting histograms    
   //---------------------------------------------------------------------------- 
   
@@ -304,8 +315,13 @@ void WWAnalysisSelector::InsideLoop() {
   if (_Signal == "WJets50")
     baseW = ( (GEN_weight_SM/abs(GEN_weight_SM)) / 0.68394 ) * baseW;
 
-  else if (_Signal == "DY50")
+  else if (_Signal == "DY50"){
     baseW = ( (GEN_weight_SM/abs(GEN_weight_SM)) / 0.670032 ) * baseW;
+    if (channel == 1) //EE
+      baseW = baseW * 1.07921;
+    else if (channel == 0) //MuMu
+      baseW = baseW * 0.85099;
+  }
 
   else if (_Signal == "SingleTop50")
     baseW = ( (GEN_weight_SM/abs(GEN_weight_SM)) / 0.215131 ) * baseW;
@@ -313,12 +329,17 @@ void WWAnalysisSelector::InsideLoop() {
   else if (_Signal == "TTJets50")
     baseW = ( (GEN_weight_SM/abs(GEN_weight_SM)) / 0.331907 ) * baseW;
 
-  else if (_Signal == "DY25")
+  else if (_Signal == "DY25"){
     baseW = ( (GEN_weight_SM/abs(GEN_weight_SM)) / 0.72760 ) * baseW;
+    if (channel == 1) //EE
+      baseW = baseW * 1.07921;
+    else if (channel == 0) //MuMu
+      baseW = baseW * 0.85099;
+  }
 
   else
     baseW = baseW * 1.;
-  
+ 
   efficiencyW = puW * effW * triggW ;
   totalW      = (1 + 0.5 * (dataset >= 82 && dataset <= 84)) * baseW * efficiencyW * _Luminosity;
   
@@ -509,7 +530,41 @@ void WWAnalysisSelector::InsideLoop() {
 	     //if (IsIsolatedLepton(1))
 	     //	 if (IsTightLepton(0,_MuonID))
 	     //	   if (IsTightLepton(1,_MuonID)){
+
+	     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	     //
+	     // Data Driven methods
+	     //
+	     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	     
+	     if (pfType1Met > 20 && mpmet > 20 && mll > 12 && ptll > 45 && nextra == 0 && (dphiv || channel == 2 || channel == 3)) {
+	     
+	       //Z + Jets
+
+	       if (dphiv && bveto_mu && (bveto_ip && (nbjettche == 0 || njet > 3))) {
+		 
+		 // Loop over the metvar bins
+		 //----------------------------------------------------------------------
+
+		 for (size_t mc=0; mc<numberMetCuts; mc ++) {
+		   
+		   if (metvar > MetCut[mc] && fabs(mll - ZMASS) < 7.5) {
+		     hNinLooseZevents[mc]->Fill(1,totalW);
+		   }
+		   
+		   if (metvar > MetCut[mc] && metvar < MetCut[mc+1]) {   
+		     if (fabs(mll - ZMASS) < 7.5) {
+		       hNinZevents[mc]   ->Fill(  1, totalW);
+		       hMassInZevents[mc]->Fill(mll, totalW);
+		     }
+		     else if (fabs(mll - ZMASS) > 15) {  
+		       hNoutZevents[mc]   ->Fill(  1, totalW);
+		       hMassOutZevents[mc]->Fill(mll, totalW);
+		     }
+		   }
+		 }
+	       }
+	     }
 	     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	     //
 	     // Main analisis
@@ -723,6 +778,23 @@ void WWAnalysisSelector::Summary() {
 
   h_n_PV  = FindOutput<TH1F*>("h_N_PV");  
   
+  //Z + Jets Data Driven histograms
+  //----------------------------------------------------------------------------       
+  char name[80];
+
+  for (size_t nC=0; nC<numberMetCuts; nC++) {
+    sprintf(name,"hNinZevents%.i",      MetCut[nC]);
+    hNinZevents     [nC] = FindOutput<TH1F*>(name);
+    sprintf(name,"hNoutZevents%.i",      MetCut[nC]);
+    hNoutZevents    [nC] = FindOutput<TH1F*>(name);
+    sprintf(name,"hNinLooseZevents%.i",      MetCut[nC]);
+    hNinLooseZevents[nC] = FindOutput<TH1F*>(name);
+    sprintf(name,"hMassInZevents%.i",      MetCut[nC]);
+    hMassInZevents  [nC] = FindOutput<TH1F*>(name);
+    sprintf(name,"hMassOutZevents%.i",      MetCut[nC]);
+    hMassOutZevents [nC] = FindOutput<TH1F*>(name);
+  } 
+
   // Counting histograms
   //----------------------------------------------------------------------------
 
@@ -789,8 +861,6 @@ void WWAnalysisSelector::Summary() {
   //----------------------------------------------------------------------------                                                    
 
   hWnJetsBvetoAfterHt = FindOutput<TH1F*>("hWnJetsBvetoAfterHt");
-
-  char name[80];
 
   for (Int_t qq = 0; qq < 4; ++qq){
     sprintf(name,"hPtLepton1WWLevel%.1i",qq);

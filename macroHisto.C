@@ -73,21 +73,21 @@ void drawPlots(TString variable,
 	       ){
 
   Float_t rangeY = 0.;
-
+  
   TString path = "rootFiles/" + Channel + "/" + muonID + "/" + bunch + "/";
-
+  
   for (int ip = 0; ip < nProcesses; ++ip){
     TString fileName = path + process[ip] + ".root";
     input[ip] = new TFile(fileName, "read");
-
+    
     if (input[ip] -> GetListOfKeys() -> Contains(variable) == 0){
       cout<<"I cannot find the histogram named "<<variable<<". I'll skip it."<<endl;
       return;
     }
-
+    
     histo[ip]  = (TH1F*) input[ip] -> Get(variable);
     histo[ip] -> Rebin(nrebin);
-
+    
     //histograms normalization
     if (norm == "normon")
       histo[ip] -> Scale(1./histo[ip] -> Integral());
@@ -96,7 +96,7 @@ void drawPlots(TString variable,
     if( histo[ip] -> GetMaximum() > rangeY )
       rangeY = histo[ip] -> GetMaximum();
   }
-
+  
   //binEntry = binContent / weight
   //weigth = Integral / totalEntries
   //binEntry = binContent / ( Integral / totalEntries ) = binContent * totalEntries / Integral
@@ -131,11 +131,11 @@ void drawPlots(TString variable,
   pad1->SetBottomMargin(0.18);
   pad1->Draw();
   pad1->cd();
-
+  
   histo[0]->SetTitleSize(4.);
-
+  
   Float_t rangeMin = 0.0001;
-
+  
   //Log Draw Options
   if (drawLog == "logon"){
     histo[0] -> GetYaxis() -> SetRangeUser(rangeMin, rangeY / rangeMin);
@@ -144,7 +144,7 @@ void drawPlots(TString variable,
   else if (drawLog == "logoff"){
     histo[0] -> GetYaxis() -> SetRangeUser(0.,2.*rangeY);
   }
-
+  
   //Labels
   if(units != "[]")
     histo[0]->GetXaxis()->SetTitle(units);
@@ -157,12 +157,12 @@ void drawPlots(TString variable,
   histo[0]->GetYaxis()->SetNdivisions(408);
   histo[0]->GetYaxis()->SetTitleOffset(2.0);
   histo[0]->GetYaxis()->SetTitle(Form("entries / %.1f", histo[0]->GetBinWidth(0)));
-
+  
   TLegend* leg = new TLegend(0.25,0.70,0.75,0.89);
   Float_t maxYaxis = 0.;
-
+  
   histo[0] -> Draw();
-
+  
   //Legend
   for (int ip = nProcesses - 1; ip >= 0; --ip){
     if (DataMode == "dataon" && ip!=iData) histo[ip]->SetLineWidth(3);
@@ -199,15 +199,15 @@ void drawPlots(TString variable,
   if (title.Contains("Level0")) njets = "0  Jet";
   if (title.Contains("Level1")) njets = "1  Jet";
   if (title.Contains("Level2")) njets = "2+ Jet";
-
+  
   /*
-  if(title.Contains("stack"))
+    if(title.Contains("stack"))
     title.Remove(title.Length() - 5);
-  if(title.Contains("TwoLeptonsLevel"))
+    if(title.Contains("TwoLeptonsLevel"))
     title.Remove(title.Length() - 15);
-  if(title.Contains("WWLevel"))
+    if(title.Contains("WWLevel"))
     title.Remove(title.Length() - 8);
-  cout<<variable<<","<<title<<endl;
+    cout<<variable<<","<<title<<endl;
   */
   THStack* hstack = new THStack("","");//title, title);
   
@@ -221,7 +221,7 @@ void drawPlots(TString variable,
   
   //TH1F *errors = new TH1F("errors","",haxis.GetNbinsX(),0.,histo[0]->GetNbinsX() * histo[0]->GetBinWidth(0));
   //TH1F *erRatio = new TH1F("erRatio","",haxis.GetNbinsX(),0.,histo[0]->GetNbinsX() * histo[0]->GetBinWidth(0));
-
+  
   //building error graphs
   Float_t large = histo[0]->GetBinWidth(0) / 2;
   for(int e = 0; e < haxis.GetNbinsX(); ++e){
@@ -247,7 +247,7 @@ void drawPlots(TString variable,
     if(histo[iData]->GetBinContent(maxBinData) + errors -> GetErrorY(maxBinData) / 2 > maxYaxisStack)
       maxYaxisStack = histo[iData]->GetBinContent(maxBinData) + errors -> GetErrorY(maxBinData) / 2;
   }
-
+  
   errors -> SetMarkerStyle(8);
   errors -> SetFillStyle(3005);	
   errors -> SetFillColor(kBlack);
@@ -318,32 +318,37 @@ void drawPlots(TString variable,
     histo[iData] -> Draw("ep");
   }
   hstack -> Draw("hist");
-
+  
   if (DataMode == "dataon")
     histo[iData] -> Draw("epsame");
   
   errors -> Draw("same,2");
-
-      TH1F ratio("ratio","",haxis.GetNbinsX(),left,histo[0]->GetNbinsX() * histo[0]->GetBinWidth(0));
-      ratio.SetStats(0);
-      
-      //cout<<histo[0]->GetBinWidth(0)<<","<<large<<endl;
-      /*
-      cout<<errors -> GetNbinsX()<<","<<haxis.GetNbinsX()<<","<<ratio.GetNbinsX()<<","<<hstack->GetHistogram()->GetNbinsX()<<endl;
-      cout<<errors -> GetBinWidth(0)<<","<<haxis.GetBinWidth(0)<<","<<ratio.GetBinWidth(0)<<","<<hstack->GetHistogram()->GetBinWidth(0)<<endl;
-      */
+  
+  TH1F ratio("ratio","",haxis.GetNbinsX(),left,histo[0]->GetNbinsX() * histo[0]->GetBinWidth(0));
+  ratio.SetStats(0);
+  
+  //cout<<histo[0]->GetBinWidth(0)<<","<<large<<endl;
+  /*
+    cout<<errors -> GetNbinsX()<<","<<haxis.GetNbinsX()<<","<<ratio.GetNbinsX()<<","<<hstack->GetHistogram()->GetNbinsX()<<endl;
+    cout<<errors -> GetBinWidth(0)<<","<<haxis.GetBinWidth(0)<<","<<ratio.GetBinWidth(0)<<","<<hstack->GetHistogram()->GetBinWidth(0)<<endl;
+  */
   if(DataMode == "dataon"){
     for(int p = 0; p < histo[0]->GetNbinsX(); ++p){
       if(haxis.GetBinContent(p) != 0){
 	ratio.SetBinContent(p, histo[0]->GetBinCenter(p), histo[iData]->GetBinContent(p) / haxis.GetBinContent(p));
 	float ratioErr = 0.; 
 	if (histo[iData]->GetBinContent(p) != 0)
-	  ratioErr = histo[iData]->GetBinError(p) / histo[iData]->GetBinContent(p) + haxis.GetBinError(p) / haxis.GetBinContent(p);
-	ratio.SetBinError(p, 0.5*histo[0]->GetBinWidth(p), ratioErr* ratio.GetBinContent(p));
+	  ratioErr = pow(histo[iData]->GetBinError(p) / histo[iData]->GetBinContent(p),2) + pow(haxis.GetBinError(p) / haxis.GetBinContent(p),2);
+	ratio.SetBinError(p, /*0.5*histo[0]->GetBinWidth(p), */sqrt(ratioErr)* ratio.GetBinContent(p));
       }
-      else 
+      else{
 	ratio.SetBinContent(p, histo[0]->GetBinCenter(p), 0.);
+	ratio.SetBinError  (p, 0.);
+      }
+      //if (variable == "hMinvTwoLeptonsLevel"){
+      //cout<<ratio.GetBinError(p)<<endl;
     }
+    //}
     c2->Update();
     c2->cd();
     //ratio.GetXaxis()->SetRangeUser(0.,haxis.GetNbinsX() * haxis.GetBinWidth(0));

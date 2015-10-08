@@ -23,6 +23,8 @@
 #include "Riostream.h"  
 
 const Double_t ZMASS = 91.1876;
+const UInt_t numberMetCuts = 5;
+const Int_t MetCut[numberMetCuts] = {20, 25, 30, 45, 1000}; // GeV
 
 class WWAnalysisSelector: public PAFChainItemSelector{
   
@@ -122,6 +124,15 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   // Histograms 
   TH1F *h_n_PV;
   
+  // Z + Jets Data Driven histograms
+  //----------------------------------------------------------------------------
+
+  TH1F* hNinZevents     [numberMetCuts];
+  TH1F* hNoutZevents    [numberMetCuts];
+  TH1F* hNinLooseZevents[numberMetCuts];
+  TH1F* hMassInZevents  [numberMetCuts];
+  TH1F* hMassOutZevents [numberMetCuts];
+
   // Counting histograms
   //----------------------------------------------------------------------------       
   
