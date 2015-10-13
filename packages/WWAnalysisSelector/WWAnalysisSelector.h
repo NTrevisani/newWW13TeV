@@ -76,8 +76,13 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   std::vector<float> std_vector_lepton_isMediumMuon;
   std::vector<float> std_vector_jet_csvv2ivf;
   std::vector<float> std_vector_jet_softMuPt;
+  std::vector<float> std_vector_electron_hOverE;
+  std::vector<float> std_vector_electron_dEtaIn;
+  std::vector<float> std_vector_electron_dPhiIn;
+  std::vector<float> std_vector_electron_ooEmooP;
 
   float GEN_weight_SM;
+  float nllW;
   float phi1;
   float phi2;
   float jetRho;

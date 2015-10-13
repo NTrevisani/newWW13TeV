@@ -270,7 +270,8 @@ void WWAnalysisSelector::InsideLoop() {
     Assign("GEN_weight_SM",GEN_weight_SM);
   else 
     GEN_weight_SM = 1;
-  
+  if (_Signal == "WW50")
+    Assign("nllW",nllW);
   Assign("phi1",phi1);
   Assign("phi2",phi2);
   Assign("puW",puW);  
@@ -315,6 +316,10 @@ void WWAnalysisSelector::InsideLoop() {
   Double_t efficiencyW = effW * triggW;
   Double_t totalW      = -999;
   
+  //NNLL corrections
+  if (_Signal == "WW50")
+    baseW = baseW * nllW;
+
   //Correcting for the Negative Weight Scaling  
   if (_Signal == "WJets50")
     baseW = ( (GEN_weight_SM/abs(GEN_weight_SM)) / 0.68394 ) * baseW;
@@ -1002,11 +1007,27 @@ bool WWAnalysisSelector::IsTightLepton(int k, TString _MuonID_)
     }
   }
   
-  // Electron cut based medium ID
-  else if (fabs(std_vector_lepton_flavour.at(k)) == 11)
-    {
+  // Electron cut based medium ID plus tighter trigger cuts
+  else if (fabs(std_vector_lepton_flavour.at(k)) == 11){
+    //ECAL Barrel
+    if( fabs(std_vector_lepton.at(k) < 1.2) &&
+        std_vector_electron_hOverE < 0.08   && 
+	std_vector_electron_dEtaIn < 0.01   &&
+	std_vector_electron_dPhiIn < 0.04   &&
+	std_vector_electron_ooEmooP < 0.01  ){
+      
       is_tight_lepton = std_vector_lepton_eleIdMedium.at(k);
     }
+  //ECAL Endcap
+    if( fabs(std_vector_lepton.at(k) > 1.2 && fabs(std_vector_lepton.at(k) < 2.5) &&
+        std_vector_electron_hOverE < 0.08   && 
+	std_vector_electron_dEtaIn < 0.01   &&
+	std_vector_electron_dPhiIn < 0.08   &&
+	std_vector_electron_ooEmooP < 0.01  ){
+      
+      is_tight_lepton = std_vector_lepton_eleIdMedium.at(k);
+    }
+  }
   /*   
   float aeta = fabs(std_vector_electron_scEta.at(k));
       
