@@ -10,7 +10,7 @@ LUMINOSITY=0.04008
 
 NJETS=$1
 
-CHANNELS="SF OF MuMu EE"
+CHANNELS="SF OF EE"
 #"MuMu All SF EE MuE EMu MuMu "
 
 PROOFMODE="Lite"
@@ -57,5 +57,5 @@ for CHANNEL in $CHANNELS; do
 done
 
 #hadd -f rootFiles/${CHANNEL}/${MUONID}/Top.root rootFiles/${CHANNEL}/${MUONID}/TTJets50.root rootFiles/${CHANNEL}/${MUONID}/Top50.root
-hadd -f rootFiles/${CHANNEL}/${MUONID}/DY.root rootFiles/${CHANNEL}/${MUONID}/50ns/DY.root rootFiles/${CHANNEL}/${MUONID}/25ns/DY.root
-mv rootFiles/${CHANNEL}/${MUONID}/DY.root rootFiles/${CHANNEL}/${MUONID}/50ns/DY.root
+#hadd -f rootFiles/${CHANNEL}/${MUONID}/DY.root rootFiles/${CHANNEL}/${MUONID}/50ns/DY.root rootFiles/${CHANNEL}/${MUONID}/25ns/DY.root
+#mv rootFiles/${CHANNEL}/${MUONID}/DY.root rootFiles/${CHANNEL}/${MUONID}/50ns/DY.root

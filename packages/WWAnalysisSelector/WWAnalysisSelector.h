@@ -127,11 +127,11 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   // Z + Jets Data Driven histograms
   //----------------------------------------------------------------------------
 
-  TH1F* hNinZevents     [numberMetCuts];
-  TH1F* hNoutZevents    [numberMetCuts];
-  TH1F* hNinLooseZevents[numberMetCuts];
-  TH1F* hMassInZevents  [numberMetCuts];
-  TH1F* hMassOutZevents [numberMetCuts];
+  TH1F* hNinZevents     [numberMetCuts][4];
+  TH1F* hNoutZevents    [numberMetCuts][4];
+  TH1F* hNinLooseZevents[numberMetCuts][4];
+  TH1F* hMassInZevents  [numberMetCuts][4];
+  TH1F* hMassOutZevents [numberMetCuts][4];
 
   // Counting histograms
   //----------------------------------------------------------------------------       
@@ -227,6 +227,8 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   TH1F* hbVetoCsvv2ivfMedium[4];
   TH1F* hbVetoCsvv2ivfTight[4];
   TH1F* hbVetoCsvv2ivfLooseAndMu[4];
+  TH1F* hbVetoCsvv2ivfRecommended[4];
+  TH1F* hbVetoCsvv2ivfRecommendedAndMu[4];
   
  public:
   

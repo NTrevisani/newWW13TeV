@@ -12,7 +12,7 @@
 #include "TStyle.h"
 #include "TSystem.h"
 #include "TTree.h"
-
+#include "TLatex.h"
 
 const UInt_t numberMetCuts = 5;
 
@@ -62,6 +62,18 @@ Double_t errNinEstNoDibosonFunction(Double_t NinDataSF,
 				    Double_t NinDataOF,
 				    Double_t NinVV);
 
+const char jet[4] = "0123";
+TString Channels[3] = {"EE","MuMu","SF"};
+
+//launch the code for all channels, all jetbins
+void DY(){
+
+  for (int pp = 0; pp < 3; ++pp)
+    for (int qq = 0; qq < 4; ++qq){
+      doDY(jet[qq], Channels[pp]);
+    }
+}
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
@@ -70,17 +82,16 @@ Double_t errNinEstNoDibosonFunction(Double_t NinDataSF,
 // channel = SF, MuMu, EE
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-void DY(/*Double_t &yield,
-	Double_t &statError,
-	Double_t &systError,
-	Double_t &scaleFactor,*/
-	TString   channel = "SF",
-	TString   ID = "MediumIDTighterIP",
-	TString   bunch = "50ns",
-	Bool_t    useDataDriven = true,
-	Int_t     printLevel = 100,
-	Bool_t    drawR = true)
+void doDY(char jetbin,
+	  TString channel,
+	  TString ID = "MediumIDTighterIP",
+	  TString bunch = "50ns",
+	  Bool_t  useDataDriven = true,
+	  Int_t   printLevel = 100,
+	  Bool_t  drawR = true)
 {
+  cout<<"nJet = "<<jetbin<<endl;
+  cout<<"Channel = "<<channel<<endl;
 
   Double_t yield;                                                                                                                      
   Double_t statError;
@@ -115,21 +126,22 @@ void DY(/*Double_t &yield,
   TH1F* hNoutDataOF[numberMetCuts];
 
   for (UInt_t nC=0; nC<numberMetCuts; nC++) {
-    hNinDYSF  [nC] = (TH1F*)inputDYSF  ->Get(Form("hNinZevents%.i", MetCuts[nC]));
-    hNinVVSF  [nC] = (TH1F*)inputVVSF  ->Get(Form("hNinZevents%.i", MetCuts[nC]));
-    hNinDataSF[nC] = (TH1F*)inputDataSF->Get(Form("hNinZevents%.i", MetCuts[nC]));
-    hNinDataOF[nC] = (TH1F*)inputDataOF->Get(Form("hNinZevents%.i", MetCuts[nC]));
+    hNinDYSF  [nC] = (TH1F*)inputDYSF  ->Get(Form("hNinZevents%.i%.c", MetCuts[nC],jetbin));
+    cout<<Form("hNinZevents%.i%.c", MetCuts[nC],jetbin)<<endl;
+    hNinVVSF  [nC] = (TH1F*)inputVVSF  ->Get(Form("hNinZevents%.i%.c", MetCuts[nC],jetbin));
+    hNinDataSF[nC] = (TH1F*)inputDataSF->Get(Form("hNinZevents%.i%.c", MetCuts[nC],jetbin));
+    hNinDataOF[nC] = (TH1F*)inputDataOF->Get(Form("hNinZevents%.i%.c", MetCuts[nC],jetbin));
 
-    hNoutDYSF  [nC] = (TH1F*)inputDYSF  ->Get(Form("hNoutZevents%.i", MetCuts[nC]));     
-    hNoutVVSF  [nC] = (TH1F*)inputVVSF  ->Get(Form("hNoutZevents%.i", MetCuts[nC]));     
-    hNoutDataSF[nC] = (TH1F*)inputDataSF->Get(Form("hNoutZevents%.i", MetCuts[nC]));
-    hNoutDataOF[nC] = (TH1F*)inputDataOF->Get(Form("hNoutZevents%.i", MetCuts[nC]));
+    hNoutDYSF  [nC] = (TH1F*)inputDYSF  ->Get(Form("hNoutZevents%.i%.c", MetCuts[nC],jetbin));     
+    hNoutVVSF  [nC] = (TH1F*)inputVVSF  ->Get(Form("hNoutZevents%.i%.c", MetCuts[nC],jetbin));     
+    hNoutDataSF[nC] = (TH1F*)inputDataSF->Get(Form("hNoutZevents%.i%.c", MetCuts[nC],jetbin));
+    hNoutDataOF[nC] = (TH1F*)inputDataOF->Get(Form("hNoutZevents%.i%.c", MetCuts[nC],jetbin));
   }
 
 
   // Histogram at analysis level
   //----------------------------------------
-  TH1F* hExpectedDYSF = (TH1F*)inputDYSF->Get("hPtLepton1WWLevel3");//("hWTopTagging");
+  TH1F* hExpectedDYSF = (TH1F*)inputDYSF->Get(Form("hPtLepton1WWLevel%.c", jetbin));//("hWTopTagging");
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   //
@@ -139,8 +151,8 @@ void DY(/*Double_t &yield,
   TFile* inputDYmumu = new TFile("../rootFiles/MuMu/" + ID + "/" + bunch + "/DY.root");
   TFile* inputDYee   = new TFile("../rootFiles/EE/"   + ID + "/" + bunch + "/DY.root");
 
-  TH1F* hNinDYmumu = (TH1F*)inputDYmumu->Get("hNinLooseZevents20");
-  TH1F* hNinDYee   = (TH1F*)inputDYee  ->Get("hNinLooseZevents20");
+  TH1F* hNinDYmumu = (TH1F*)inputDYmumu->Get(Form("hNinLooseZevents20%.c", jetbin));
+  TH1F* hNinDYee   = (TH1F*)inputDYee  ->Get(Form("hNinLooseZevents20%.c", jetbin));
 
   Double_t NinDYmumu = hNinDYmumu -> GetBinContent(2);
   Double_t NinDYee   = hNinDYee   -> GetBinContent(2);
@@ -184,7 +196,6 @@ void DY(/*Double_t &yield,
     NoutDataSF[nC] = hNoutDataSF[nC]->GetBinContent(2);    
     NoutDataOF[nC] = hNoutDataOF[nC]->GetBinContent(2);
   }
-
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   //
@@ -253,7 +264,6 @@ void DY(/*Double_t &yield,
 
   // Estimate Nout
   //----------------------------------------------------------------------------
-  //Double_t NinCountedSFWZ   = NinWZSF  [sysR];
   Double_t NinCountedSFVV   = NinVVSF  [sysR];
   Double_t NinCountedSFData = NinDataSF[sysR];
   Double_t NinCountedOFData = NinDataOF[sysR];
@@ -386,12 +396,13 @@ void DY(/*Double_t &yield,
 
     // Legend
     //--------------------------------------------------------------------------
-    TLegend* lmgR = new TLegend(0.72, 0.68, 0.92, 0.88);
+    TLegend* lmgR = new TLegend(0.62, 0.68, 0.86, 0.88);
 
     lmgR->AddEntry(gR,    " DY MC", "lp");
     lmgR->AddEntry(gRdata," data",  "lp");
 
     lmgR->SetFillColor(0);
+    lmgR->SetLineColor(kWhite);
     lmgR->SetTextAlign(12);
     lmgR->SetTextFont (42);
     lmgR->SetTextSize (0.04);
@@ -400,8 +411,7 @@ void DY(/*Double_t &yield,
     else if (channel == "EE")   lmgR->SetHeader("ee");
     else if (channel == "MuMu") lmgR->SetHeader("#mu#mu");
 
-    lmgR->Draw("same");
-
+    lmgR->Draw();
 
     // Line at zero
     //--------------------------------------------------------------------------
@@ -414,7 +424,20 @@ void DY(/*Double_t &yield,
 
     // Save
     //--------------------------------------------------------------------------
-    canvas->SaveAs("R_" + channel + ".png");
+    lmgR->Draw("same");
+
+    if (jetbin == '3'){
+      DrawTLatex(0.725, 0.65, 0.04,  "Inclusive");
+      canvas->SaveAs("R_" + channel + "_Inclusive.png");
+      canvas->SaveAs("R_" + channel + "_Inclusive.pdf");
+    }
+    else{                                                   //Inclusive 
+      if      (jetbin == '0') DrawTLatex(0.725, 0.65, 0.04,  "0 Jet    ");
+      else if (jetbin == '1') DrawTLatex(0.725, 0.65, 0.04,  "1 Jet    ");
+      else if (jetbin == '2') DrawTLatex(0.725, 0.65, 0.04,  "2+ Jets  ");
+      canvas->SaveAs("R_" + channel + "_" + jetbin + "jet.png");
+      canvas->SaveAs("R_" + channel + "_" + jetbin + "jet.pdf");
+    }
   }
 }
 
@@ -547,4 +570,19 @@ Double_t errNinEstNoDibosonFunction(Double_t NinDataSF,
   errNinEst = sqrt(errNinEst);
 
   return errNinEst;
+}
+
+//------------------------------------------------------------------------------
+// DrawTLatex
+//------------------------------------------------------------------------------
+void DrawTLatex(Double_t x, Double_t y, Double_t tsize, const char* text)
+{
+  TLatex* tl = new TLatex(x, y, text);
+
+  tl->SetNDC();
+  tl->SetTextAlign(   32);
+  tl->SetTextFont (   42);
+  tl->SetTextSize (tsize);
+
+  tl->Draw("same");
 }

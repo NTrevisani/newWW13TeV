@@ -124,16 +124,18 @@ void WWAnalysisSelector::Initialise() {
   
   h_n_PV = CreateH1F("h_n_PV","h_n_PV",50,0.,10.);
 
-  //Z + Jets Data Driven histograms
+  //Z + Jets Data Driven histograms - nMetCut x nJet
   //----------------------------------------------------------------------------       
-
-  for (size_t nC=0; nC<numberMetCuts; nC++) {
-    hNinZevents     [nC] = CreateH1F(Form("hNinZevents%.i",      MetCut[nC]), "",    3, 0,    3);
-    hNoutZevents    [nC] = CreateH1F(Form("hNoutZevents%.i",     MetCut[nC]), "",    3, 0,    3);
-    hNinLooseZevents[nC] = CreateH1F(Form("hNinLooseZevents%.i", MetCut[nC]), "",    3, 0,    3);
-    hMassInZevents  [nC] = CreateH1F(Form("hMassInZevents%.i",   MetCut[nC]), "", 3000, 0, 3000);
-    hMassOutZevents [nC] = CreateH1F(Form("hMassOutZevents%.i",  MetCut[nC]), "", 3000, 0, 3000);
-  } 
+  
+  for (unsigned int j = 0; j < 4; ++j){
+    for (size_t nC=0; nC<numberMetCuts; nC++) {
+      hNinZevents     [nC][j] = CreateH1F(Form("hNinZevents%.1i%.1i",      MetCut[nC],j), "",    3, 0,    3);
+      hNoutZevents    [nC][j] = CreateH1F(Form("hNoutZevents%.1i%.1i",     MetCut[nC],j), "",    3, 0,    3);
+      hNinLooseZevents[nC][j] = CreateH1F(Form("hNinLooseZevents%.1i%.1i", MetCut[nC],j), "",    3, 0,    3);
+      hMassInZevents  [nC][j] = CreateH1F(Form("hMassInZevents%.1i%.1i",   MetCut[nC],j), "", 3000, 0, 3000);
+      hMassOutZevents [nC][j] = CreateH1F(Form("hMassOutZevents%.1i%.1i",  MetCut[nC],j), "", 3000, 0, 3000);
+    } 
+  }
 
   // Counting histograms    
   //---------------------------------------------------------------------------- 
@@ -225,12 +227,14 @@ void WWAnalysisSelector::Initialise() {
     // BVeto level histograms 
     //----------------------------------------------------------------------------
     
-    hbVetoOld[nC]                = CreateH1F(Form("hbVetoOld%.1i", nC),                "", 3000, 0, 3000);
-    hbVetoMu[nC]                 = CreateH1F(Form("hbVetoMu%.1i", nC),                 "", 3000, 0, 3000);
-    hbVetoCsvv2ivfLoose[nC]      = CreateH1F(Form("hbVetoCsvv2ivfLoose%.1i", nC),      "", 3000, 0, 3000);
-    hbVetoCsvv2ivfMedium[nC]     = CreateH1F(Form("hbVetoCsvv2ivfMedium%.1i", nC),     "", 3000, 0, 3000);
-    hbVetoCsvv2ivfTight[nC]      = CreateH1F(Form("hbVetoCsvv2ivfTight%.1i", nC),      "", 3000, 0, 3000);
-    hbVetoCsvv2ivfLooseAndMu[nC] = CreateH1F(Form("hbVetoCsvv2ivfLooseAndMu%.1i", nC), "", 3000, 0, 3000);
+    hbVetoOld[nC]                       = CreateH1F(Form("hbVetoOld%.1i", nC),                       "", 3000, 0, 3000);
+    hbVetoMu[nC]                        = CreateH1F(Form("hbVetoMu%.1i", nC),                        "", 3000, 0, 3000);
+    hbVetoCsvv2ivfLoose[nC]             = CreateH1F(Form("hbVetoCsvv2ivfLoose%.1i", nC),             "", 3000, 0, 3000);
+    hbVetoCsvv2ivfMedium[nC]            = CreateH1F(Form("hbVetoCsvv2ivfMedium%.1i", nC),            "", 3000, 0, 3000);
+    hbVetoCsvv2ivfTight[nC]             = CreateH1F(Form("hbVetoCsvv2ivfTight%.1i", nC),             "", 3000, 0, 3000);
+    hbVetoCsvv2ivfLooseAndMu[nC]        = CreateH1F(Form("hbVetoCsvv2ivfLooseAndMu%.1i", nC),        "", 3000, 0, 3000);
+    hbVetoCsvv2ivfRecommended[nC]       = CreateH1F(Form("hbVetoCsvv2ivfRecommended%.1i", nC),       "", 3000, 0, 3000);
+    hbVetoCsvv2ivfRecommendedAndMu[nC]  = CreateH1F(Form("hbVetoCsvv2ivfRecommendedAndMu%.1i", nC),  "", 3000, 0, 3000);
   }
 }
 
@@ -317,10 +321,10 @@ void WWAnalysisSelector::InsideLoop() {
 
   else if (_Signal == "DY50"){
     baseW = ( (GEN_weight_SM/abs(GEN_weight_SM)) / 0.670032 ) * baseW;
-    if (channel == 1) //EE
-      baseW = baseW * 1.07921;
-    else if (channel == 0) //MuMu
-      baseW = baseW * 0.85099;
+    //if (channel == 1) //EE
+    //baseW = baseW * 1.07921;
+    //else if (channel == 0) //MuMu
+    //baseW = baseW * 0.85099;
   }
 
   else if (_Signal == "SingleTop50")
@@ -331,10 +335,10 @@ void WWAnalysisSelector::InsideLoop() {
 
   else if (_Signal == "DY25"){
     baseW = ( (GEN_weight_SM/abs(GEN_weight_SM)) / 0.72760 ) * baseW;
-    if (channel == 1) //EE
-      baseW = baseW * 1.07921;
-    else if (channel == 0) //MuMu
-      baseW = baseW * 0.85099;
+    //if (channel == 1) //EE
+    //baseW = baseW * 1.07921;
+    //else if (channel == 0) //MuMu
+    //baseW = baseW * 0.85099;
   }
 
   else
@@ -447,6 +451,13 @@ void WWAnalysisSelector::InsideLoop() {
      if (std_vector_jet_csvv2ivf.at(i) > 0.941)
        bvetocsvv2ivfTight = true;
 
+   //Building b-veto csvv2ivf Recommended (false: no b-jet -> good!! true: b-jet detected -> reject event!!)
+   bool bvetocsvv2ivfRecommended = false;
+
+   for (unsigned int i = 0; i < njet; ++i)
+     if (std_vector_jet_csvv2ivf.at(i) > 0.605)
+       bvetocsvv2ivfRecommended = true;
+
    //Building a Soft Muon B-Veto (Quite Rudely)
    bool bvetoMu = false;
    
@@ -479,7 +490,7 @@ void WWAnalysisSelector::InsideLoop() {
    ++njetGen;       
    */
 
-   //look for the two most energetics isolated and identified leptons (20GeV - 10GeV)
+   //look for the two most energetics isolated and identified leptons (20GeV - 20GeV)
    unsigned int a = 100;
    for (unsigned int first = 0; first < std_vector_lepton_pt.size(); ++first)
      if (std_vector_lepton_pt.at(first) > 20)
@@ -491,7 +502,7 @@ void WWAnalysisSelector::InsideLoop() {
 
    unsigned int b = 100;
    for (unsigned int second = a + 1; second < std_vector_lepton_pt.size(); ++second)
-     if (std_vector_lepton_pt.at(second) > 10)
+     if (std_vector_lepton_pt.at(second) > 20)
        if (IsIsolatedLepton(second))
          if (IsTightLepton(second,_MuonID)){
 	   b = second;
@@ -540,6 +551,7 @@ void WWAnalysisSelector::InsideLoop() {
 	     if (pfType1Met > 20 && mpmet > 20 && mll > 12 && ptll > 45 && nextra == 0 && (dphiv || channel == 2 || channel == 3)) {
 	     
 	       //Z + Jets
+	       //----------------------------------------------------------------------
 
 	       if (dphiv && bveto_mu && (bveto_ip && (nbjettche == 0 || njet > 3))) {
 		 
@@ -549,22 +561,42 @@ void WWAnalysisSelector::InsideLoop() {
 		 for (size_t mc=0; mc<numberMetCuts; mc ++) {
 		   
 		   if (metvar > MetCut[mc] && fabs(mll - ZMASS) < 7.5) {
-		     hNinLooseZevents[mc]->Fill(1,totalW);
+		     hNinLooseZevents[mc][3]->Fill(1,totalW);
+		     for (int jetNumber = 0; jetNumber < 3 ; ++jetNumber){
+		       if (jetbin >= 3) jetbin = 2;
+		       if(jetNumber == jetbin){
+			 hNinLooseZevents[mc][jetNumber]->Fill(1,totalW);
+		       }
+		     }
 		   }
-		   
 		   if (metvar > MetCut[mc] && metvar < MetCut[mc+1]) {   
 		     if (fabs(mll - ZMASS) < 7.5) {
-		       hNinZevents[mc]   ->Fill(  1, totalW);
-		       hMassInZevents[mc]->Fill(mll, totalW);
+		       hNinZevents[mc][3]   ->Fill(  1, totalW);
+		       hMassInZevents[mc][3]->Fill(mll, totalW);
+		       for (int jetNumber = 0; jetNumber < 3 ; ++jetNumber){
+			 if (jetbin >= 3) jetbin = 2;
+			 if(jetNumber == jetbin){
+			   hNinZevents[mc][jetNumber]   ->Fill(  1, totalW);
+			   hMassInZevents[mc][jetNumber]->Fill(mll, totalW);
+			 }
+		       }
 		     }
 		     else if (fabs(mll - ZMASS) > 15) {  
-		       hNoutZevents[mc]   ->Fill(  1, totalW);
-		       hMassOutZevents[mc]->Fill(mll, totalW);
+		       hNoutZevents[mc][3]   ->Fill(  1, totalW);
+		       hMassOutZevents[mc][3]->Fill(mll, totalW);
+		       for (int jetNumber = 0; jetNumber < 3 ; ++jetNumber){
+			 if (jetbin >= 3) jetbin = 2;
+			 if(jetNumber == jetbin){
+			   hNoutZevents[mc][jetNumber]   ->Fill(  1, totalW);
+			   hMassOutZevents[mc][jetNumber]->Fill(mll, totalW);
+			 }
+		       }
 		     }
-		   }
+		   }		       
 		 }
 	       }
 	     }
+
 	     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	     //
 	     // Main analisis
@@ -610,10 +642,10 @@ void WWAnalysisSelector::InsideLoop() {
 		   hWeffLowMinv->Fill(1, efficiencyW);
 		   
 		   //zveto (in case of same flavour)
-		   if ( (fabs(ZMASS - mll) > 15 && 
-			 ( metvar > 45 ) )      ||
-			channel == 2            ||
-			channel == 3            ){
+		   if ( (fabs(ZMASS - mll) > 15  && 
+			 (metvar > 45 ) )        ||
+			channel == 2             || 
+			channel == 3             ){
 		     
 		     hWZVeto->Fill(1, totalW);
 		     hWeffZVeto->Fill(1, efficiencyW);
@@ -664,11 +696,18 @@ void WWAnalysisSelector::InsideLoop() {
 			   if (!bvetocsvv2ivfTight)
 			     hbVetoCsvv2ivfTight[3] -> Fill(1, totalW);
 			   
-			   if (!bvetocsvv2ivfLoose && !bvetoMu){
+			   if (!bvetocsvv2ivfLoose && !bvetoMu)
 			     hbVetoCsvv2ivfLooseAndMu[3] -> Fill(1, totalW);
+			     //hHt[2]->Fill(Ht,totalW);				    
+			     
+			   if (!bvetocsvv2ivfRecommended)
+			     hbVetoCsvv2ivfRecommended[3] -> Fill(1, totalW);
+			   
+			   if (!bvetocsvv2ivfRecommended && !bvetoMu){
+			     hbVetoCsvv2ivfRecommendedAndMu[3] -> Fill(1, totalW);
 			     hHt[2]->Fill(Ht,totalW);				    
 			     
-			     
+
 			     //bveto Ht 
 			     if(Ht < 237){
 			       hPtLepton1WWLevel[3]      ->Fill(pt1,       totalW);
@@ -707,9 +746,15 @@ void WWAnalysisSelector::InsideLoop() {
 			       if (!bvetocsvv2ivfMedium)
 				 hbVetoCsvv2ivfMedium[jetNumber] -> Fill(1, totalW);
 			       
-			       if (!bvetocsvv2ivfTight){
+			       if (!bvetocsvv2ivfTight)
 				 hbVetoCsvv2ivfTight[jetNumber] -> Fill(1, totalW);
 				 
+				 if (!bvetocsvv2ivfRecommended)
+				   hbVetoCsvv2ivfRecommended[jetNumber] -> Fill(1, totalW);
+				 
+				 if (!bvetocsvv2ivfRecommended && !bvetoMu){
+				   hbVetoCsvv2ivfRecommendedAndMu[jetNumber] -> Fill(1, totalW);
+			     
 				 //bveto Ht  
 				 if(Ht < 237){
 				   
@@ -782,17 +827,20 @@ void WWAnalysisSelector::Summary() {
   //----------------------------------------------------------------------------       
   char name[80];
 
-  for (size_t nC=0; nC<numberMetCuts; nC++) {
-    sprintf(name,"hNinZevents%.i",      MetCut[nC]);
-    hNinZevents     [nC] = FindOutput<TH1F*>(name);
-    sprintf(name,"hNoutZevents%.i",      MetCut[nC]);
-    hNoutZevents    [nC] = FindOutput<TH1F*>(name);
-    sprintf(name,"hNinLooseZevents%.i",      MetCut[nC]);
-    hNinLooseZevents[nC] = FindOutput<TH1F*>(name);
-    sprintf(name,"hMassInZevents%.i",      MetCut[nC]);
-    hMassInZevents  [nC] = FindOutput<TH1F*>(name);
-    sprintf(name,"hMassOutZevents%.i",      MetCut[nC]);
-    hMassOutZevents [nC] = FindOutput<TH1F*>(name);
+  for (int j = 0; j < 4; ++j){
+    for (size_t nC=0; nC<numberMetCuts; nC++) {
+      sprintf(name,"hNinZevents%.1i%.1i",MetCut[nC],j);
+      cout<<name<<endl;
+      hNinZevents     [nC][j] = FindOutput<TH1F*>(name);
+      sprintf(name,"hNoutZevents%.1i%.1i",MetCut[nC],j);
+      hNoutZevents    [nC][j] = FindOutput<TH1F*>(name);
+      sprintf(name,"hNinLooseZevents%.1i%.1i",MetCut[nC],j);
+      hNinLooseZevents[nC][j] = FindOutput<TH1F*>(name);
+      sprintf(name,"hMassInZevents%.1i%.1i",MetCut[nC],j);
+      hMassInZevents  [nC][j] = FindOutput<TH1F*>(name);
+      sprintf(name,"hMassOutZevents%.1i%.1i",MetCut[nC],j);
+      hMassOutZevents [nC][j] = FindOutput<TH1F*>(name);
+    }
   } 
 
   // Counting histograms
@@ -909,6 +957,10 @@ void WWAnalysisSelector::Summary() {
     hbVetoCsvv2ivfTight[qq]      = FindOutput<TH1F*>(name);
     sprintf(name,"hbVetoCsvv2ivfLooseAndMu%.1i",qq);
     hbVetoCsvv2ivfLooseAndMu[qq] = FindOutput<TH1F*>(name);
+    sprintf(name,"hbVetoCsvv2ivfRecommended%.1i",qq);
+    hbVetoCsvv2ivfRecommended[qq] = FindOutput<TH1F*>(name);
+    sprintf(name,"hbVetoCsvv2ivfRecommendedAndMu%.1i",qq);
+    hbVetoCsvv2ivfRecommendedAndMu[qq] = FindOutput<TH1F*>(name);
   }
 }
 

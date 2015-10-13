@@ -25,7 +25,7 @@ void RunMuonAnalyzer(TString data,
   TString path25      = "/gpfs/csic_projects/tier3data/LatinosSkims/MC_Spring15/25ns_August_PU/";
   TString path50      = "/gpfs/csic_projects/tier3data/LatinosSkims/MC_Spring15/50ns_August_PU/";
   TString pathOld     = "/gpfs/csic_projects/cms/trevisanin/newLatino/";
-  TString pathData    = "/gpfs/csic_projects/tier3data/LatinosSkims/Data13TeVRun2015B/";
+  TString pathData    = "/gpfs/csic_projects/tier3data/LatinosSkims/Data13TeV/";
 
   TString outPath     = "/gpfs/csic_users/trevisanin/newWW13TeV/rootFiles/" + flavorChannel + "/" + muonID + "/";
 
@@ -155,14 +155,18 @@ void RunMuonAnalyzer(TString data,
   //*******************************************************************************
 
   else if (data=="Data201550") {
-
-    myProject->AddDataFile(pathData + "latino_DoubleEG.root");
-    myProject->AddDataFile(pathData + "latino_MuonEG.root");
-    myProject->AddDataFile(pathData + "latino_SingleElectron.root");
-    myProject->AddDataFile(pathData + "latino_SingleMuon.root");
-    //myProject->AddDataFile(pathData + "latino_DoubleMuonLowMass.root");
-    myProject->AddDataFile(pathData + "latino_DoubleMuon.root");
-    //myProject->AddDataFile(pathData + "latino_SingleMu.root");
+    /*
+    myProject->AddDataFile(pathData + "50ns/latino_Run2015C_PromptReco_50ns_DoubleEG.root");
+    myProject->AddDataFile(pathData + "50ns/latino_Run2015C_PromptReco_50ns_MuonEG.root");
+    myProject->AddDataFile(pathData + "50ns/latino_Run2015C_PromptReco_50ns_SingleElectron.root");
+    myProject->AddDataFile(pathData + "50ns/latino_Run2015C_PromptReco_50ns_SingleMuon.root");
+    myProject->AddDataFile(pathData + "50ns/latino_Run2015C_PromptReco_50ns_DoubleMuon.root");
+    */
+    myProject->AddDataFile(pathData + "50ns/latino_DoubleEG.root");
+    myProject->AddDataFile(pathData + "50ns/latino_MuonEG.root");
+    myProject->AddDataFile(pathData + "50ns/latino_SingleElectron.root");
+    myProject->AddDataFile(pathData + "50ns/latino_SingleMuon.root");
+    myProject->AddDataFile(pathData + "50ns/latino_DoubleMuon.root");
 
     isdata             = true;
     nEventsInTheSample = 128512; 
