@@ -263,6 +263,10 @@ void WWAnalysisSelector::InsideLoop() {
   Assign("std_vector_lepton_isMediumMuon",std_vector_lepton_isMediumMuon);
   Assign("std_vector_jet_csvv2ivf",std_vector_jet_csvv2ivf);
   Assign("std_vector_jet_softMuPt",std_vector_jet_softMuPt);
+  Assign("std_vector_electron_hOverE",std_vector_electron_hOverE);
+  Assign("std_vector_electron_dEtaIn",std_vector_electron_dEtaIn);
+  Assign("std_vector_electron_dPhiIn",std_vector_electron_dPhiIn);
+  Assign("std_vector_electron_ooEmooP",std_vector_electron_ooEmooP);
 
   //Assigning values to float variables
   //----------------------------------------------------------------------------
@@ -1010,20 +1014,20 @@ bool WWAnalysisSelector::IsTightLepton(int k, TString _MuonID_)
   // Electron cut based medium ID plus tighter trigger cuts
   else if (fabs(std_vector_lepton_flavour.at(k)) == 11){
     //ECAL Barrel
-    if( fabs(std_vector_lepton.at(k) < 1.2) &&
-        std_vector_electron_hOverE < 0.08   && 
-	std_vector_electron_dEtaIn < 0.01   &&
-	std_vector_electron_dPhiIn < 0.04   &&
-	std_vector_electron_ooEmooP < 0.01  ){
+    if( fabs(std_vector_lepton_eta.at(k) < 0.8)   &&
+        std_vector_electron_hOverE.at(k) < 0.08   && 
+	std_vector_electron_dEtaIn.at(k) < 0.01   &&
+	std_vector_electron_dPhiIn.at(k) < 0.04   &&
+	std_vector_electron_ooEmooP.at(k) < 0.01  ){
       
       is_tight_lepton = std_vector_lepton_eleIdMedium.at(k);
     }
   //ECAL Endcap
-    if( fabs(std_vector_lepton.at(k) > 1.2 && fabs(std_vector_lepton.at(k) < 2.5) &&
-        std_vector_electron_hOverE < 0.08   && 
-	std_vector_electron_dEtaIn < 0.01   &&
-	std_vector_electron_dPhiIn < 0.08   &&
-	std_vector_electron_ooEmooP < 0.01  ){
+    if( fabs(std_vector_lepton_eta.at(k) > 1.2 && fabs(std_vector_lepton_eta.at(k)) < 2.4) &&
+        std_vector_electron_hOverE.at(k) < 0.08   && 
+	std_vector_electron_dEtaIn.at(k) < 0.01   &&
+	std_vector_electron_dPhiIn.at(k) < 0.08   &&
+	std_vector_electron_ooEmooP.at(k) < 0.01  ){
       
       is_tight_lepton = std_vector_lepton_eleIdMedium.at(k);
     }
