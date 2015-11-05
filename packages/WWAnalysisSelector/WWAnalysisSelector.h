@@ -62,6 +62,7 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   std::vector<float> std_vector_lepton_flavour;
   std::vector<float> std_vector_lepton_isTightMuon;
   std::vector<float> std_vector_lepton_eleIdMedium;
+  std::vector<float> std_vector_lepton_eleIdTight;
   std::vector<float> std_vector_lepton_chargedHadronIso;
   std::vector<float> std_vector_lepton_photonIso;
   std::vector<float> std_vector_lepton_neutralHadronIso;
@@ -113,6 +114,10 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   float nbjettche;
   float jetpt1;
   float jetphi1;
+  float jeteta1;
+  float jetpt2;
+  float jetphi2;
+  float jeteta2;
   float pfType1Metphi;
   float dphillmet;
   float nvtx;
@@ -141,71 +146,71 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   // Counting histograms
   //----------------------------------------------------------------------------       
   
-  TH1F* hWTrigger;
-  TH1F* hWMetCut;
-  TH1F* hWLowMinv;
-  TH1F* hWZVeto;
-  TH1F* hWpMetCut;
-  TH1F* hWJetVeto;
-  TH1F* hWnJetsBeforeBtag;
-  TH1F* hWeffnJetsBeforeBtag;
-  TH1F* hWnJets;
-  TH1F* hWeffnJets;
-  TH1F* hWnBtaggedJets;
-  TH1F* hWeffnBtaggedJets;
-  TH1F* hWnJetsBveto;
-  TH1F* hWeffnJetsBveto;
-  TH1F* hNjetsTwoLeptonsLevel;
-  TH1F* hWeffnJetsBvetoAfterHt;
+  TH1F* hWTrigger[4];
+  TH1F* hWMetCut[4];
+  TH1F* hWLowMinv[4];
+  TH1F* hWZVeto[4];
+  TH1F* hWpMetCut[4];
+  TH1F* hWJetVeto[4];
+  TH1F* hWnJetsBeforeBtag[4];
+  TH1F* hWeffnJetsBeforeBtag[4];
+  TH1F* hWnJets[4];
+  TH1F* hWeffnJets[4];
+  TH1F* hWnBtaggedJets[4];
+  TH1F* hWeffnBtaggedJets[4];
+  TH1F* hWnJetsBveto[4];
+  TH1F* hWeffnJetsBveto[4];
+  TH1F* hNjetsTwoLeptonsLevel[4];
+  TH1F* hWeffnJetsBvetoAfterHt[4];
   
-  TH1F* hWDeltaPhiJet;
-  TH1F* hWSoftMuVeto;
-  TH1F* hWExtraLepton;
-  TH1F* hWPtll;
-  TH1F* hWTopTagging;
+  TH1F* hWDeltaPhiJet[4];
+  TH1F* hWSoftMuVeto[4];
+  TH1F* hWExtraLepton[4];
+  TH1F* hWPtll[4];
+  TH1F* hWTopTagging[4];
   
-  TH1F* hWeffTrigger;
-  TH1F* hWeffMetCut;
-  TH1F* hWeffLowMinv;
-  TH1F* hWeffZVeto;
-  TH1F* hWeffpMetCut;
-  TH1F* hWeffJetVeto;
-  TH1F* hWeffDeltaPhiJet;
-  TH1F* hWeffSoftMuVeto;
-  TH1F* hWeffExtraLepton;
-  TH1F* hWeffPtll;
-  TH1F* hWeffTopTagging;
+  TH1F* hWeffTrigger[4];
+  TH1F* hWeffMetCut[4];
+  TH1F* hWeffLowMinv[4];
+  TH1F* hWeffZVeto[4];
+  TH1F* hWeffpMetCut[4];
+  TH1F* hWeffJetVeto[4];
+  TH1F* hWeffDeltaPhiJet[4];
+  TH1F* hWeffSoftMuVeto[4];
+  TH1F* hWeffExtraLepton[4];
+  TH1F* hWeffPtll[4];
+  TH1F* hWeffTopTagging[4];
   
   // TwoLeptons level histograms
   //----------------------------------------------------------------------------
   
-  TH1F* hNVtx;
-  TH1F* hPtLepton1TwoLeptonsLevel;
-  TH1F* hPtLepton2TwoLeptonsLevel ;
-  TH1F* hPtDiLeptonTwoLeptonsLevel;
-  TH1F* hMinvTwoLeptonsLevel;
-  TH1F* hMtTwoLeptonsLevel;
-  TH1F* hpfMetTwoLeptonsLevel;
-  TH1F* htrkMetTwoLeptonsLevel;
-  TH1F* hpminMetTwoLeptonsLevel;
-  TH1F* hDeltaRLeptonsTwoLeptonsLevel;
-  TH1F* hDeltaPhiLeptonsTwoLeptonsLevel;
-  TH1F* hDPhiPtllJetTwoLeptonsLevel;
-  TH1F* hNjetsPlot1TwoLeptonsLevel;
-  TH1F* hNjetsPlot2TwoLeptonsLevel;
-  TH1F* hSigMuNoHtTwoLeptonsLevel;
-  TH1F* hSigElNoHtTwoLeptonsLevel;
-  TH1F* hDxyTwoLeptonsLevel;
-  TH1F* hDzTwoLeptonsLevel;  
+  TH1F* hNVtx[4];
+  TH1F* hPtLepton1TwoLeptonsLevel[4];
+  TH1F* hPtLepton2TwoLeptonsLevel[4];
+  TH1F* hPtDiLeptonTwoLeptonsLevel[4];
+  TH1F* hMinvTwoLeptonsLevel[4];
+  TH1F* hMtTwoLeptonsLevel[4];
+  TH1F* hpfMetTwoLeptonsLevel[4];
+  TH1F* htrkMetTwoLeptonsLevel[4];
+  TH1F* hpminMetTwoLeptonsLevel[4];
+  TH1F* hDeltaRLeptonsTwoLeptonsLevel[4];
+  TH1F* hDeltaPhiLeptonsTwoLeptonsLevel[4];
+  TH1F* hDPhiPtllJetTwoLeptonsLevel[4];
+  TH1F* hNjetsPlot1TwoLeptonsLevel[4];
+  TH1F* hNjetsPlot2TwoLeptonsLevel[4];
+  TH1F* hSigMuNoHtTwoLeptonsLevel[4];
+  TH1F* hSigElNoHtTwoLeptonsLevel[4];
+  TH1F* hDxyTwoLeptonsLevel[4];
+  TH1F* hDzTwoLeptonsLevel[4];  
   
-  TH1F *hLooseIso;
-  TH1F *hsoftMuPt;
-  TH1F *hjetPt;
+  TH1F *hLooseIso[4];
+  TH1F *hsoftMuPt[4];
+  TH1F *hjetPt[4];
   
   // WW level histograms
   //----------------------------------------------------------------------------
   
-  TH1F* hWnJetsBvetoAfterHt;
+  TH1F* hWnJetsBvetoAfterHt[4];
   TH1F* hPtLepton1WWLevel[4];
   TH1F* hPtLepton2WWLevel[4];
   TH1F* hPtDiLeptonWWLevel[4];
@@ -235,6 +240,37 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   TH1F* hbVetoCsvv2ivfRecommended[4];
   TH1F* hbVetoCsvv2ivfRecommendedAndMu[4];
   
+  // Control Region histograms
+  //---------------------------------------------------------------------------- 
+  
+  TH1F* hpfMetCR[4];
+  TH1F* htrkMetCR[4];
+  TH1F* hmpMetCR[4];
+  
+  // monoH level histograms                                                         
+  //---------------------------------------------------------------------------- 
+  
+  TH1F* hPtLepton1monoHLevel[4][4];
+  TH1F* hPtLepton2monoHLevel[4][4];
+  TH1F* hPtDiLeptonmonoHLevel[4][4];
+  TH1F* hMinvmonoHLevel[4][4];
+  TH1F* hMtmonoHLevel[4][4];
+  TH1F* hMt1monoHLevel[4][4];
+  TH1F* hMt2monoHLevel[4][4];
+  TH1F* hpfMetmonoHLevel[4][4];
+  TH1F* hpminMetmonoHLevel[4][4];
+  TH1F* hDeltaRLeptonsmonoHLevel[4][4];
+  TH1F* hDeltaPhiLeptonsmonoHLevel[4][4];
+  TH1F* hDPhiPtllJetmonoHLevel[4][4];
+  TH1F* hDPhillMetmonoHLevel[4][4];
+  TH1F* hPtWWmonoHLevel[4][4];
+  TH1F* hMcmonoHLevel[4][4];
+  TH1F* hTrkMetmonoHLevel[4][4];
+  TH1F* hHtmonoHLevel[4][4];
+  TH1F* hdphijetjetmonoHLevel[4][4];
+  TH1F* hdetajetjetmonoHLevel[4][4];
+
+
  public:
   
   //Additional Variables
@@ -248,7 +284,13 @@ class WWAnalysisSelector: public PAFChainItemSelector{
   Float_t ptWW;
   Float_t metvar;
   Float_t njetGen;
-  
+  Float_t Mt1;
+  Float_t Mt2;
+  Float_t Mc;
+  Float_t dphijetjet;
+  Float_t detajetjet;
+
+
   // My Declarations:OA
   // Define global variables
   
